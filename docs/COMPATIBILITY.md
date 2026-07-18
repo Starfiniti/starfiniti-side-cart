@@ -1,6 +1,6 @@
 # Compatibility matrix
 
-Version: 1.3.8
+Version: 1.4.0
 Date: 2026-07-18
 
 | Area | Status | Notes |

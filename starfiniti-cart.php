@@ -3,7 +3,8 @@
  * Plugin Name:       Starfiniti Cart for WooCommerce
  * Plugin URI:        https://starfiniti.com/
  * Description:       A standalone side cart for WooCommerce.
- * Version:           1.3.8
+ * Version:           1.4.0
+ * Update URI:        https://github.com/Starfiniti/starfiniti-side-cart
  * Requires at least: 6.6
  * Requires PHP:      8.1
  * Requires Plugins:  woocommerce
@@ -23,7 +24,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'SFCART_VERSION', '1.3.8' );
+define( 'SFCART_VERSION', '1.4.0' );
 define( 'SFCART_PLUGIN_FILE', __FILE__ );
 define( 'SFCART_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'SFCART_PLUGIN_URL', plugin_dir_url( __FILE__ ) );

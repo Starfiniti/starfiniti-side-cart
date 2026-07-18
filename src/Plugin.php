@@ -24,6 +24,7 @@ use Starfiniti\Cart\Rest\AdminController;
 use Starfiniti\Cart\Rest\AnalyticsController;
 use Starfiniti\Cart\Rest\MigrationController;
 use Starfiniti\Cart\Support\Logger;
+use Starfiniti\Cart\Updates\GitHubUpdater;
 use Throwable;
 
 /**
@@ -89,6 +90,7 @@ final class Plugin {
 	 * Register lifecycle hooks.
 	 */
 	public function boot(): void {
+		GitHubUpdater::register();
 		add_action( 'before_woocommerce_init', array( $this, 'declare_woocommerce_compatibility' ) );
 		add_action( 'plugins_loaded', array( $this, 'initialize' ), 20 );
 		add_action( 'init', array( $this, 'load_textdomain' ), 0 );

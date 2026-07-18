@@ -11,11 +11,15 @@ require_once dirname( __DIR__ ) . '/vendor/autoload.php';
 require_once dirname( __DIR__ ) . '/phpunit-stubs/woocommerce.php';
 
 if ( ! defined( 'SFCART_VERSION' ) ) {
-	define( 'SFCART_VERSION', '1.3.8' );
+	define( 'SFCART_VERSION', '1.4.0' );
 }
 
 if ( ! defined( 'ARRAY_A' ) ) {
 	define( 'ARRAY_A', 'ARRAY_A' );
+}
+
+if ( ! defined( 'HOUR_IN_SECONDS' ) ) {
+	define( 'HOUR_IN_SECONDS', 3600 );
 }
 
 // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited -- Isolated WordPress version test stub.
@@ -31,6 +35,125 @@ $GLOBALS['sfcart_test_quantity_args'] = array(
 );
 $GLOBALS['sfcart_test_products']      = array();
 $GLOBALS['sfcart_test_timezone']      = 'UTC';
+$GLOBALS['sfcart_test_transients']    = array();
+$GLOBALS['sfcart_test_remote']        = array();
+$GLOBALS['sfcart_test_requests']      = array();
+$GLOBALS['sfcart_test_downloads']     = array();
+
+if ( ! class_exists( 'WP_Error' ) ) {
+	/** Minimal WordPress error object for isolated updater tests. */
+	final class WP_Error {
+		/**
+		 * Create an isolated WordPress error.
+		 *
+		 * @param string $code    Error code.
+		 * @param string $message Error message.
+		 */
+		public function __construct( private string $code = '', private string $message = '' ) {
+		}
+
+		/** Return the primary error code. */
+		public function get_error_code(): string {
+			return $this->code;
+		}
+
+		/** Return the primary error message. */
+		public function get_error_message(): string {
+			return $this->message;
+		}
+	}
+}
+
+if ( ! function_exists( 'is_wp_error' ) ) {
+	/** Determine whether a value is a WordPress error. */
+	function is_wp_error( mixed $thing ): bool {
+		return $thing instanceof WP_Error;
+	}
+}
+
+if ( ! function_exists( 'get_site_transient' ) ) {
+	/** Read an isolated network transient. */
+	function get_site_transient( string $key ): mixed {
+		return $GLOBALS['sfcart_test_transients'][ $key ]['value'] ?? false;
+	}
+}
+
+if ( ! function_exists( 'set_site_transient' ) ) {
+	/** Store an isolated network transient and its requested lifetime. */
+	function set_site_transient( string $key, mixed $value, int $expiration = 0 ): bool {
+		$GLOBALS['sfcart_test_transients'][ $key ] = array(
+			'value'      => $value,
+			'expiration' => $expiration,
+		);
+		return true;
+	}
+}
+
+if ( ! function_exists( 'delete_site_transient' ) ) {
+	/** Delete an isolated network transient. */
+	function delete_site_transient( string $key ): bool {
+		unset( $GLOBALS['sfcart_test_transients'][ $key ] );
+		return true;
+	}
+}
+
+if ( ! function_exists( 'wp_safe_remote_get' ) ) {
+	/**
+	 * Return a configured isolated HTTP response.
+	 *
+	 * @param string               $url  Requested URL.
+	 * @param array<string, mixed> $args Request arguments.
+	 */
+	function wp_safe_remote_get( string $url, array $args = array() ): array|WP_Error {
+		$GLOBALS['sfcart_test_requests'][] = array( 'url' => $url, 'args' => $args );
+		return $GLOBALS['sfcart_test_remote'][ $url ] ?? new WP_Error( 'http_request_failed', 'No response configured.' );
+	}
+}
+
+if ( ! function_exists( 'wp_remote_retrieve_response_code' ) ) {
+	/** Return an isolated response status. */
+	function wp_remote_retrieve_response_code( array|WP_Error $response ): int {
+		return $response instanceof WP_Error ? 0 : (int) ( $response['response']['code'] ?? 0 );
+	}
+}
+
+if ( ! function_exists( 'wp_remote_retrieve_body' ) ) {
+	/** Return an isolated response body. */
+	function wp_remote_retrieve_body( array|WP_Error $response ): string {
+		return $response instanceof WP_Error ? '' : (string) ( $response['body'] ?? '' );
+	}
+}
+
+if ( ! function_exists( 'wp_parse_url' ) ) {
+	/**
+	 * Parse a URL using the native test runtime.
+	 *
+	 * @param string $url       URL to parse.
+	 * @param int    $component Optional URL component.
+	 */
+	function wp_parse_url( string $url, int $component = -1 ): array|string|int|false|null {
+		// phpcs:ignore WordPress.WP.AlternativeFunctions.parse_url_parse_url -- Isolated WordPress test stub.
+		return -1 === $component ? parse_url( $url ) : parse_url( $url, $component );
+	}
+}
+
+if ( ! function_exists( 'download_url' ) ) {
+	/** Return a configured temporary update package. */
+	function download_url( string $url, int $timeout = 300 ): string|WP_Error {
+		unset( $timeout );
+		return $GLOBALS['sfcart_test_downloads'][ $url ] ?? new WP_Error( 'download_failed', 'No download configured.' );
+	}
+}
+
+if ( ! function_exists( 'wp_delete_file' ) ) {
+	/** Delete an isolated temporary package. */
+	function wp_delete_file( string $file ): void {
+		if ( is_file( $file ) ) {
+			// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_unlink -- Isolated temporary test fixture.
+			unlink( $file );
+		}
+	}
+}
 
 if ( ! function_exists( 'wp_timezone' ) ) {
 	/** Return the configured isolated site timezone. */

@@ -1,6 +1,6 @@
 {
   "name": "starfiniti-cart",
-  "version": "1.3.8",
+  "version": "1.4.0",
   "private": true,
   "description": "Build tooling for Starfiniti Cart for WooCommerce.",
   "license": "GPL-3.0-or-later",
@@ -11,8 +11,8 @@
   "scripts": {
     "build": "wp-scripts build",
     "start": "wp-scripts start",
-    "format": "wp-scripts format .github/workflows/ci.yml assets blocks playground scripts/package.mjs tests/e2e playwright.config.ts webpack.config.js",
-    "lint:js": "wp-scripts lint-js assets scripts/package.mjs tests/e2e tests/js playwright.config.ts webpack.config.js",
+    "format": "wp-scripts format .github/workflows/ci.yml assets blocks playground scripts tests/e2e playwright.config.ts webpack.config.js",
+    "lint:js": "wp-scripts lint-js assets scripts tests/e2e tests/js playwright.config.ts webpack.config.js",
     "lint:style": "wp-scripts lint-style \"assets/**/*.scss\"",
     "typecheck": "tsc --noEmit",
     "test:unit": "wp-scripts test-unit-js --runInBand --passWithNoTests",

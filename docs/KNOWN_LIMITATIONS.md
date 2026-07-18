@@ -1,7 +1,7 @@
 # Known limitations
 
-Version: 1.3.8
-Date: 2026-07-17
+Version: 1.4.0
+Date: 2026-07-18
 
 - This release is intended for Starfiniti-controlled staging/internal use before
   broad commercial distribution.
@@ -22,5 +22,5 @@ Date: 2026-07-17
   integration explicitly opts them in. Each third-party adapter still needs
   staging verification with custom pricing, multicurrency, multilingual, and
   aggressive caching stacks.
-- The plugin has no commercial license system or automatic update service in
-  this release.
+- The plugin has no commercial license system or proprietary update service.
+  Native updates depend on availability of the public GitHub Releases service.

@@ -2,6 +2,13 @@
 
 All notable changes to Starfiniti Cart for WooCommerce are documented here.
 
+## 1.4.0 - 2026-07-18
+
+- Added native WordPress update discovery from stable public GitHub Releases.
+- Added strict owned-repository URL validation, bounded release caching, and no-token update requests that transmit no store or customer data.
+- Added fail-closed SHA-256 verification using GitHub asset digests or the published checksum file before WordPress installs an update.
+- Added automated tagged-release publishing only after the full JavaScript, PHP, Playground, and MySQL test matrix passes.
+
 ## 1.3.8 - 2026-07-18
 
 - Tagged only cacheable pages that render Starfiniti Cart with the dedicated LiteSpeed `sfcart` cache tag.

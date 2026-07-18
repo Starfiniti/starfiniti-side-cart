@@ -25,7 +25,8 @@ it so the wider WooCommerce community can benefit as well.
 - Optional special add-on offers and gateway-owned express-payment controls.
 - Cart-focused analytics, attributed offer revenue, refunds, and CSV exports.
 - HPOS, multilingual, multicurrency, Breakdance, caching, and LiteSpeed support.
-- No licensing server, telemetry, payment processing, or automatic updater.
+- Native WordPress updates from public GitHub Releases with SHA-256 package verification.
+- No licensing server, telemetry, payment processing, account, or update token.
 
 ## Support the project
 
@@ -209,6 +210,19 @@ script uses a fixed timestamp, stable file ordering, normalized file modes, and
 an explicit source allowlist so identical committed inputs produce an identical
 archive. Compiled JavaScript/CSS and their TypeScript/SCSS source are both
 included in the release.
+
+## Updates
+
+Stable releases update through the normal WordPress Plugins screen. Update
+metadata and packages come directly from this public GitHub repository; no
+Starfiniti account, license key, GitHub token, or paid updater library is
+required. WordPress's normal per-plugin auto-update toggle remains authoritative.
+
+Every release publishes the exact versioned ZIP and a matching SHA-256 file.
+The plugin validates owned GitHub URLs, rejects drafts and prereleases, and
+verifies the downloaded package before WordPress installs it. Update checks send
+only the plugin name and installed version in the HTTP user agent—not the store
+URL, customer data, cart data, or credentials.
 
 ## Release documentation
 

@@ -5,7 +5,8 @@ This directory is an independent WordPress plugin repository.
 ## Non-negotiable boundaries
 
 - The plugin implements a side cart only.
-- Do not modify checkout pages or implement checkout, funnels, order bumps, payment processing, licensing, telemetry, or automatic updates.
+- Do not modify checkout pages or implement checkout, funnels, order bumps, payment processing, commercial licensing, telemetry, or a proprietary update service.
+- Native WordPress updates may use only public, stable GitHub Releases from the owned repository. They must require SHA-256 verification and must not transmit store data, credentials, or tokens.
 - WooCommerce is the only required runtime dependency.
 - Public PHP identifiers use `sfcart_`; PHP classes live under `Starfiniti\Cart`; CSS classes use `.sfcart-*`; the text domain is `starfiniti-cart`.
 - Preserve GPL attribution in `LICENSE`, `NOTICE.md`, and any substantially derived source headers.
