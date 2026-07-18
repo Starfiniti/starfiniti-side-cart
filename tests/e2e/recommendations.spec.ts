@@ -8,6 +8,9 @@ type AdminConfig = {
 	relationshipsPath: string;
 };
 
+let originalUpsells: Record< string, unknown > | null = null;
+let originalUpsellsConfig: AdminConfig | null = null;
+
 async function adminConfig( page: Page ): Promise< AdminConfig > {
 	await page.goto( '/wp-admin/admin.php?page=starfiniti-cart', {
 		waitUntil: 'domcontentloaded',
@@ -79,6 +82,59 @@ async function setUpsells(
 	expect( status ).toBe( 200 );
 }
 
+async function readUpsells(
+	page: Page,
+	config: AdminConfig
+): Promise< Record< string, unknown > > {
+	const settingsUrl = await apiUrl( config, config.settingsPath );
+	return page.evaluate(
+		async ( { nonce, settingsPath } ) => {
+			const response = await fetch( settingsPath, {
+				headers: { 'X-WP-Nonce': nonce },
+			} );
+			const current = await response.json();
+			return current.settings.upsells;
+		},
+		{ nonce: config.nonce, settingsPath: settingsUrl }
+	);
+}
+
+async function restoreUpsells(
+	page: Page,
+	config: AdminConfig,
+	upsells: Record< string, unknown >
+): Promise< void > {
+	const settingsUrl = await apiUrl( config, config.settingsPath );
+	const status = await page.evaluate(
+		async ( { nonce, settingsPath, original } ) => {
+			const currentResponse = await fetch( settingsPath, {
+				headers: { 'X-WP-Nonce': nonce },
+			} );
+			const current = await currentResponse.json();
+			current.settings.upsells = original;
+			const response = await fetch( settingsPath, {
+				body: JSON.stringify( { settings: current.settings } ),
+				headers: {
+					'Content-Type': 'application/json',
+					'X-WP-Nonce': nonce,
+				},
+				method: 'PUT',
+			} );
+			return response.status;
+		},
+		{ nonce: config.nonce, settingsPath: settingsUrl, original: upsells }
+	);
+	expect( status ).toBe( 200 );
+}
+
+test.afterEach( async ( { page } ) => {
+	if ( originalUpsells && originalUpsellsConfig ) {
+		await restoreUpsells( page, originalUpsellsConfig, originalUpsells );
+	}
+	originalUpsells = null;
+	originalUpsellsConfig = null;
+} );
+
 async function setLayout(
 	page: Page,
 	config: AdminConfig,
@@ -116,6 +172,8 @@ test( 'native relationships, three layouts, variation adds, and attribution pass
 } ) => {
 	test.setTimeout( 420_000 );
 	const config = await adminConfig( page );
+	originalUpsellsConfig = config;
+	originalUpsells = await readUpsells( page, config );
 	const sourceId = await productId( page, config, 'Batch 2 Simple Product' );
 	const recommendationId = await productId(
 		page,
@@ -190,7 +248,20 @@ test( 'native relationships, three layouts, variation adds, and attribution pass
 	await expect( recommendations ).toContainText( 'Complete your cart' );
 	const refreshRecommendations = async () => {
 		await dialog.getByRole( 'button', { name: 'Close cart' } ).click();
+		const updated = page.evaluate(
+			() =>
+				new Promise< void >( ( resolve ) => {
+					document.addEventListener(
+						'sfcart:updated',
+						() => resolve(),
+						{
+							once: true,
+						}
+					);
+				} )
+		);
 		await page.locator( '.sfcart-floating-toggle' ).click();
+		await updated;
 		await expect( dialog ).toBeVisible();
 	};
 
