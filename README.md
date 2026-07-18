@@ -25,7 +25,6 @@ it so the wider WooCommerce community can benefit as well.
 - Optional special add-on offers and gateway-owned express-payment controls.
 - Cart-focused analytics, attributed offer revenue, refunds, and CSV exports.
 - HPOS, multilingual, multicurrency, Breakdance, caching, and LiteSpeed support.
-- Guided, repeatable FunnelKit Cart migration without deleting legacy data.
 - No licensing server, telemetry, payment processing, or automatic updater.
 
 ## Support the project
@@ -62,8 +61,8 @@ on every configuration screen, including the cart-focused Analytics section.
   product/custom image, content, sizing, and color controls.
 - Cart-focused analytics for opens, interactions, checkout clicks, abandonment,
   conversion, offer performance, attributed revenue, and CSV export.
-- FunnelKit Cart migration preview, explicit confirmation, progress/state, and
-  audit log.
+- Optional legacy side-cart migration with preview, explicit confirmation,
+  resumable progress, and an audit log.
 
 ## Cart experience
 
@@ -144,9 +143,9 @@ customer session and uses native shipping packages and order CRUD metadata.
 - WooCommerce 9.0 or newer
 
 WooCommerce is the only required runtime plugin. This project does not load or
-call FunnelKit code and does not change checkout pages or payment processing.
-Activation is refused while FunnelKit Cart is active, and no other plugin is
-ever deactivated automatically.
+call code from other side-cart plugins and does not change checkout pages or
+payment processing. Activation is refused while a known conflicting side-cart
+plugin is active, and no other plugin is ever deactivated automatically.
 
 ## Data retention and uninstall
 
@@ -155,18 +154,13 @@ explicitly enabled in the Tools section. Deactivation never deletes data, and
 the uninstall handler deletes only Starfiniti-owned options and analytics
 tables on sites that opted in.
 
-## FunnelKit Cart migration
+## Optional legacy migration
 
-Open **WooCommerce → Starfiniti Cart → Tools** to preview and run the migration.
-The tool copies side-cart settings from `fkcart_settings` and legacy cart
-analytics from `fk_cart` / `fk_cart_products` into Starfiniti-owned storage.
-
-The migration requires an explicit checkbox plus typing `MIGRATE`. It is safe
-to run repeatedly: owned settings are normalized, analytics rows use stable
-event keys, and legacy FunnelKit data is never deleted. Open carts and
-transient WooCommerce sessions are not migrated, so shoppers start with a clean
-drawer. Rollback consists of deactivating Starfiniti Cart and reactivating
-FunnelKit Cart.
+Stores moving from a supported legacy side-cart installation can use the guided
+migration in **WooCommerce → Starfiniti Cart → Tools**. It provides a preview,
+explicit confirmation, resumable progress, and an audit log. The process is
+repeatable, never deletes source data, and does not copy active customer
+sessions. See `docs/MIGRATION.md` for the supported source and rollback steps.
 
 Native WooCommerce upsell and cross-sell relationships remain native product
 metadata and are not duplicated into plugin-specific relationship storage.
