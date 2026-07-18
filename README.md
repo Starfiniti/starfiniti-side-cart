@@ -33,7 +33,7 @@ it so the wider WooCommerce community can benefit as well.
 Starfiniti Cart does not have a paid edition or locked features. If it saves you
 development time or helps your store, you can support continued testing,
 compatibility work, and maintenance with an optional
-[PayPal donation](https://www.paypal.com/donate?business=dejan.kletecki%40gmail.com&no_recurring=0&item_name=Support+Starfiniti+Cart&currency_code=EUR).
+[Buy Dejan a coffee ☕](https://www.paypal.com/donate?business=dejan.kletecki%40gmail.com&no_recurring=0&item_name=Support+Starfiniti+Cart&currency_code=EUR).
 
 Donations are appreciated but never required. Every feature remains available
 to everyone.
