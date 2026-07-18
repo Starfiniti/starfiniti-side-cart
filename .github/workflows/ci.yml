@@ -1,0 +1,126 @@
+name: CI
+
+on:
+    push:
+    pull_request:
+    workflow_dispatch:
+
+permissions:
+    contents: read
+
+jobs:
+    javascript:
+        name: JavaScript build and tests
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4
+            - uses: actions/setup-node@v4
+              with:
+                  node-version: 22
+                  cache: npm
+            - run: npm ci
+            - run: npm run check
+            - run: npm run package
+            - name: Verify reproducible package
+              shell: bash
+              run: |
+                  first_checksum="$(cat dist/*.zip.sha256)"
+                  npm run package
+                  test "$first_checksum" = "$(cat dist/*.zip.sha256)"
+            - uses: actions/upload-artifact@v4
+              with:
+                  name: starfiniti-cart-development-package
+                  path: dist/
+                  if-no-files-found: error
+
+    php:
+        name: PHP ${{ matrix.php }}
+        runs-on: ubuntu-latest
+        strategy:
+            fail-fast: false
+            matrix:
+                php: ['8.1', '8.2', '8.3', '8.4']
+        steps:
+            - uses: actions/checkout@v4
+            - uses: shivammathur/setup-php@v2
+              with:
+                  php-version: ${{ matrix.php }}
+                  coverage: none
+                  tools: composer:v2
+            - run: composer install --no-interaction --prefer-dist
+            - run: composer check
+
+    playground:
+        name: WordPress Playground smoke test
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4
+            - uses: actions/setup-node@v4
+              with:
+                  node-version: 22
+                  cache: npm
+            - run: npm ci
+            - run: npx playwright install --with-deps chromium
+            - run: npm run test:e2e
+            - run: npm run test:playground-conflict
+
+    mysql-integration:
+        name: WP ${{ matrix.wordpress }} / WC ${{ matrix.woocommerce }} / PHP ${{ matrix.php }}
+        runs-on: ubuntu-latest
+        strategy:
+            fail-fast: false
+            matrix:
+                include:
+                    - wordpress: '6.6'
+                      woocommerce: '9.0.0'
+                      php: '8.1'
+                    - wordpress: latest
+                      woocommerce: latest
+                      php: '8.4'
+        services:
+            mysql:
+                image: mysql:8.0
+                env:
+                    MYSQL_DATABASE: wordpress_test
+                    MYSQL_ROOT_PASSWORD: root
+                ports:
+                    - 3306:3306
+                options: >-
+                    --health-cmd="mysqladmin ping --silent"
+                    --health-interval=10s
+                    --health-timeout=5s
+                    --health-retries=10
+        steps:
+            - uses: actions/checkout@v4
+            - uses: shivammathur/setup-php@v2
+              with:
+                  php-version: ${{ matrix.php }}
+                  coverage: none
+                  extensions: mysqli
+                  tools: composer:v2, wp-cli
+            - name: Install WordPress and WooCommerce
+              env:
+                  WP_VERSION: ${{ matrix.wordpress }}
+                  WC_VERSION: ${{ matrix.woocommerce }}
+              shell: bash
+              run: |
+                  mkdir -p /tmp/wordpress
+                  wp core download --path=/tmp/wordpress --version="$WP_VERSION"
+                  wp config create --path=/tmp/wordpress --dbname=wordpress_test --dbuser=root --dbpass=root --dbhost=127.0.0.1:3306
+                  wp core install --path=/tmp/wordpress --url=http://localhost --title=Starfiniti --admin_user=admin --admin_password=password --admin_email=devnull@example.com --skip-email
+                  if [ "$WC_VERSION" = "latest" ]; then
+                    wp plugin install woocommerce --path=/tmp/wordpress --activate
+                  else
+                    wp plugin install woocommerce --path=/tmp/wordpress --version="$WC_VERSION" --activate
+                  fi
+            - name: Install and activate Starfiniti Cart
+              shell: bash
+              run: |
+                  mkdir -p /tmp/wordpress/wp-content/plugins/starfiniti-cart
+                  rsync -a --exclude=.git --exclude=dist --exclude=node_modules --exclude=vendor "$GITHUB_WORKSPACE/" /tmp/wordpress/wp-content/plugins/starfiniti-cart/
+                  composer install --working-dir=/tmp/wordpress/wp-content/plugins/starfiniti-cart --no-dev --no-interaction --optimize-autoloader
+                  wp plugin activate starfiniti-cart --path=/tmp/wordpress
+                  wp eval 'if ( ! class_exists( "Starfiniti\\Cart\\Plugin" ) || ! Starfiniti\\Cart\\Plugin::instance()->is_ready() || 1 !== did_action( "sfcart_loaded" ) ) { exit( 1 ); }' --path=/tmp/wordpress
+                  wp option update woocommerce_custom_orders_table_enabled yes --path=/tmp/wordpress
+                  wp eval-file "$GITHUB_WORKSPACE/tests/integration/wp-cli-smoke.php" --path=/tmp/wordpress
+                  wp plugin status starfiniti-cart --path=/tmp/wordpress

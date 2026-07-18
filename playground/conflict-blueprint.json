@@ -1,0 +1,37 @@
+{
+	"$schema": "https://playground.wordpress.net/blueprint-schema.json",
+	"preferredVersions": {
+		"php": "8.3",
+		"wp": "latest"
+	},
+	"login": false,
+	"steps": [
+		{
+			"step": "installPlugin",
+			"pluginData": {
+				"resource": "wordpress.org/plugins",
+				"slug": "woocommerce"
+			},
+			"options": {
+				"activate": true
+			}
+		},
+		{
+			"step": "mkdir",
+			"path": "/wordpress/wp-content/plugins/cart-for-woocommerce"
+		},
+		{
+			"step": "writeFile",
+			"path": "/wordpress/wp-content/plugins/cart-for-woocommerce/plugin.php",
+			"data": "<?php\n/**\n * Plugin Name: Side-cart conflict test fixture\n * Version: 1.0.0\n */"
+		},
+		{
+			"step": "activatePlugin",
+			"pluginPath": "cart-for-woocommerce/plugin.php"
+		},
+		{
+			"step": "runPHP",
+			"code": "<?php\nrequire_once '/wordpress/wp-load.php';\nrequire_once ABSPATH . 'wp-admin/includes/plugin.php';\nadd_filter( 'wp_die_handler', static function () {\n    return static function ( $message ) {\n        throw new RuntimeException( wp_strip_all_tags( (string) $message ) );\n    };\n} );\n$blocked = false;\ntry {\n    $result = activate_plugin( 'starfiniti-cart/starfiniti-cart.php' );\n    if ( is_wp_error( $result ) ) {\n        throw new RuntimeException( $result->get_error_message() );\n    }\n} catch ( RuntimeException $error ) {\n    $blocked = str_contains( $error->getMessage(), 'FunnelKit Cart' );\n}\nif ( ! $blocked || ! is_plugin_active( 'cart-for-woocommerce/plugin.php' ) || is_plugin_active( 'starfiniti-cart/starfiniti-cart.php' ) ) {\n    throw new RuntimeException( 'The side-cart activation conflict guard failed.' );\n}"
+		}
+	]
+}

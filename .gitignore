@@ -1,0 +1,17 @@
+/.phpunit.cache/
+/.phpunit.result.cache
+/.playwright/
+/coverage/
+/design-qa.md
+/dist/
+/node_modules/
+/playwright-report/
+/qa/
+/shared/
+/test-results/
+/vendor/
+/.idea/
+/.vscode/
+*.log
+.DS_Store
+Thumbs.db

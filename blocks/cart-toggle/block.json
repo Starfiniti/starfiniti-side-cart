@@ -1,0 +1,22 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "starfiniti/cart-toggle",
+	"version": "0.4.0-dev",
+	"title": "Starfiniti Cart Toggle",
+	"category": "widgets",
+	"icon": "cart",
+	"description": "Opens the Starfiniti side cart and displays the current item count.",
+	"textdomain": "starfiniti-cart",
+	"attributes": {
+		"label": {
+			"type": "string",
+			"default": ""
+		}
+	},
+	"supports": {
+		"html": false,
+		"align": [ "left", "center", "right" ]
+	},
+	"editorScript": "file:../../build/cart-toggle.js"
+}

@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<ruleset name="Starfiniti Cart">
+  <description>WordPress coding standards for Starfiniti Cart.</description>
+
+  <file>starfiniti-cart.php</file>
+  <file>uninstall.php</file>
+  <file>src</file>
+  <file>tests</file>
+
+  <exclude-pattern>*/vendor/*</exclude-pattern>
+  <exclude-pattern>*/node_modules/*</exclude-pattern>
+
+  <arg name="basepath" value="."/>
+  <arg name="colors"/>
+  <arg value="sp"/>
+
+  <rule ref="WordPress-Core"/>
+  <rule ref="WordPress-Docs"/>
+  <rule ref="WordPress-Extra">
+    <!-- PSR-4 class filenames intentionally follow the class name. -->
+    <exclude name="WordPress.Files.FileName.InvalidClassFileName"/>
+    <exclude name="WordPress.Files.FileName.NotHyphenatedLowercase"/>
+  </rule>
+  <rule ref="PHPCompatibility">
+    <properties>
+      <property name="testVersion" value="8.1-"/>
+    </properties>
+  </rule>
+
+  <config name="minimum_supported_wp_version" value="6.6"/>
+  <config name="testVersion" value="8.1-"/>
+</ruleset>

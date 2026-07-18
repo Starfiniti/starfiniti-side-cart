@@ -1,0 +1,29 @@
+{
+	"$schema": "https://playground.wordpress.net/blueprint-schema.json",
+	"preferredVersions": {
+		"php": "8.3",
+		"wp": "latest"
+	},
+	"landingPage": "/wp-admin/plugins.php",
+	"login": true,
+	"steps": [
+		{
+			"step": "installPlugin",
+			"pluginData": {
+				"resource": "wordpress.org/plugins",
+				"slug": "woocommerce"
+			},
+			"options": {
+				"activate": true
+			}
+		},
+		{
+			"step": "activatePlugin",
+			"pluginPath": "starfiniti-cart/starfiniti-cart.php"
+		},
+		{
+			"step": "runPHP",
+			"code": "<?php\nrequire_once '/wordpress/wp-load.php';\nif ( ! class_exists( 'WooCommerce' ) || ! class_exists( 'Starfiniti\\Cart\\Plugin' ) || ! Starfiniti\\Cart\\Plugin::instance()->is_ready() || 1 !== did_action( 'sfcart_loaded' ) ) {\n    throw new RuntimeException( 'Packaged Starfiniti Cart did not initialize.' );\n}\nif ( ! WP_Block_Type_Registry::get_instance()->is_registered( 'starfiniti/cart-toggle' ) ) {\n    throw new RuntimeException( 'Packaged cart toggle block was not registered.' );\n}\nfile_put_contents( '/wordpress/wp-includes/css/sfcart-package-ready.css', '/* Packaged Starfiniti Cart is active. */' );"
+		}
+	]
+}

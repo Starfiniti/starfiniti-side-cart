@@ -1,0 +1,18 @@
+includes:
+	- vendor/szepeviktor/phpstan-wordpress/extension.neon
+
+parameters:
+	level: 6
+	scanFiles:
+		- vendor/php-stubs/woocommerce-stubs/woocommerce-stubs.php
+		- vendor/php-stubs/woocommerce-stubs/woocommerce-packages-stubs.php
+		- phpstan-stubs/woocommerce-store-api.php
+		- phpstan-stubs/gateway-plugins.php
+	paths:
+		- starfiniti-cart.php
+		- uninstall.php
+		- src
+	excludePaths:
+		analyse:
+			- vendor
+	treatPhpDocTypesAsCertain: false

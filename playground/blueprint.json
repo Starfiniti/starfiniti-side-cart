@@ -1,0 +1,29 @@
+{
+	"$schema": "https://playground.wordpress.net/blueprint-schema.json",
+	"preferredVersions": {
+		"php": "8.3",
+		"wp": "latest"
+	},
+	"landingPage": "/sfcart-classic/",
+	"login": true,
+	"steps": [
+		{
+			"step": "installPlugin",
+			"pluginData": {
+				"resource": "wordpress.org/plugins",
+				"slug": "woocommerce"
+			},
+			"options": {
+				"activate": true
+			}
+		},
+		{
+			"step": "activatePlugin",
+			"pluginPath": "starfiniti-cart/starfiniti-cart.php"
+		},
+		{
+			"step": "runPHP",
+			"code": "<?php\nrequire_once '/wordpress/wp-load.php';\nif ( ! class_exists( 'WooCommerce' ) || ! class_exists( 'Starfiniti\\Cart\\Plugin' ) || ! Starfiniti\\Cart\\Plugin::instance()->is_ready() || 1 !== did_action( 'sfcart_loaded' ) ) {\n    throw new RuntimeException( 'Starfiniti Cart did not initialize with WooCommerce.' );\n}\n$settings = get_option( 'sfcart_settings', array() );\nif ( SFCART_VERSION !== get_option( 'sfcart_version' ) || '11' !== get_option( 'sfcart_db_version' ) || ! is_array( $settings ) || 11 !== ( $settings['settings_version'] ?? null ) || false !== ( $settings['delete_data_on_uninstall'] ?? null ) ) {\n    throw new RuntimeException( 'Starfiniti Cart migrations did not complete safely.' );\n}\nrequire '/wordpress/wp-content/plugins/starfiniti-cart/playground/setup.php';\nfile_put_contents( '/wordpress/wp-includes/css/sfcart-playground-ready.css', '/* WooCommerce and Starfiniti Cart are active. */' );"
+		}
+	]
+}
