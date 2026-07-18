@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 require_once dirname( __DIR__ ) . '/vendor/autoload.php';
 require_once dirname( __DIR__ ) . '/phpunit-stubs/woocommerce.php';
+require_once dirname( __DIR__ ) . '/phpunit-stubs/wp-error.php';
 
 if ( ! defined( 'SFCART_VERSION' ) ) {
 	define( 'SFCART_VERSION', '1.4.0' );
@@ -40,46 +41,36 @@ $GLOBALS['sfcart_test_remote']        = array();
 $GLOBALS['sfcart_test_requests']      = array();
 $GLOBALS['sfcart_test_downloads']     = array();
 
-if ( ! class_exists( 'WP_Error' ) ) {
-	/** Minimal WordPress error object for isolated updater tests. */
-	final class WP_Error {
-		/**
-		 * Create an isolated WordPress error.
-		 *
-		 * @param string $code    Error code.
-		 * @param string $message Error message.
-		 */
-		public function __construct( private string $code = '', private string $message = '' ) {
-		}
-
-		/** Return the primary error code. */
-		public function get_error_code(): string {
-			return $this->code;
-		}
-
-		/** Return the primary error message. */
-		public function get_error_message(): string {
-			return $this->message;
-		}
-	}
-}
-
 if ( ! function_exists( 'is_wp_error' ) ) {
-	/** Determine whether a value is a WordPress error. */
+	/**
+	 * Determine whether a value is a WordPress error.
+	 *
+	 * @param mixed $thing Value to inspect.
+	 */
 	function is_wp_error( mixed $thing ): bool {
 		return $thing instanceof WP_Error;
 	}
 }
 
 if ( ! function_exists( 'get_site_transient' ) ) {
-	/** Read an isolated network transient. */
+	/**
+	 * Read an isolated network transient.
+	 *
+	 * @param string $key Transient key.
+	 */
 	function get_site_transient( string $key ): mixed {
 		return $GLOBALS['sfcart_test_transients'][ $key ]['value'] ?? false;
 	}
 }
 
 if ( ! function_exists( 'set_site_transient' ) ) {
-	/** Store an isolated network transient and its requested lifetime. */
+	/**
+	 * Store an isolated network transient and its requested lifetime.
+	 *
+	 * @param string $key        Transient key.
+	 * @param mixed  $value      Transient value.
+	 * @param int    $expiration Requested lifetime.
+	 */
 	function set_site_transient( string $key, mixed $value, int $expiration = 0 ): bool {
 		$GLOBALS['sfcart_test_transients'][ $key ] = array(
 			'value'      => $value,
@@ -90,7 +81,11 @@ if ( ! function_exists( 'set_site_transient' ) ) {
 }
 
 if ( ! function_exists( 'delete_site_transient' ) ) {
-	/** Delete an isolated network transient. */
+	/**
+	 * Delete an isolated network transient.
+	 *
+	 * @param string $key Transient key.
+	 */
 	function delete_site_transient( string $key ): bool {
 		unset( $GLOBALS['sfcart_test_transients'][ $key ] );
 		return true;
@@ -105,20 +100,31 @@ if ( ! function_exists( 'wp_safe_remote_get' ) ) {
 	 * @param array<string, mixed> $args Request arguments.
 	 */
 	function wp_safe_remote_get( string $url, array $args = array() ): array|WP_Error {
-		$GLOBALS['sfcart_test_requests'][] = array( 'url' => $url, 'args' => $args );
+		$GLOBALS['sfcart_test_requests'][] = array(
+			'url'  => $url,
+			'args' => $args,
+		);
 		return $GLOBALS['sfcart_test_remote'][ $url ] ?? new WP_Error( 'http_request_failed', 'No response configured.' );
 	}
 }
 
 if ( ! function_exists( 'wp_remote_retrieve_response_code' ) ) {
-	/** Return an isolated response status. */
+	/**
+	 * Return an isolated response status.
+	 *
+	 * @param array<string, mixed>|WP_Error $response HTTP response.
+	 */
 	function wp_remote_retrieve_response_code( array|WP_Error $response ): int {
 		return $response instanceof WP_Error ? 0 : (int) ( $response['response']['code'] ?? 0 );
 	}
 }
 
 if ( ! function_exists( 'wp_remote_retrieve_body' ) ) {
-	/** Return an isolated response body. */
+	/**
+	 * Return an isolated response body.
+	 *
+	 * @param array<string, mixed>|WP_Error $response HTTP response.
+	 */
 	function wp_remote_retrieve_body( array|WP_Error $response ): string {
 		return $response instanceof WP_Error ? '' : (string) ( $response['body'] ?? '' );
 	}
@@ -138,7 +144,12 @@ if ( ! function_exists( 'wp_parse_url' ) ) {
 }
 
 if ( ! function_exists( 'download_url' ) ) {
-	/** Return a configured temporary update package. */
+	/**
+	 * Return a configured temporary update package.
+	 *
+	 * @param string $url     Package URL.
+	 * @param int    $timeout Download timeout.
+	 */
 	function download_url( string $url, int $timeout = 300 ): string|WP_Error {
 		unset( $timeout );
 		return $GLOBALS['sfcart_test_downloads'][ $url ] ?? new WP_Error( 'download_failed', 'No download configured.' );
@@ -146,10 +157,14 @@ if ( ! function_exists( 'download_url' ) ) {
 }
 
 if ( ! function_exists( 'wp_delete_file' ) ) {
-	/** Delete an isolated temporary package. */
+	/**
+	 * Delete an isolated temporary package.
+	 *
+	 * @param string $file Temporary file path.
+	 */
 	function wp_delete_file( string $file ): void {
 		if ( is_file( $file ) ) {
-			// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_unlink -- Isolated temporary test fixture.
+			// phpcs:ignore WordPress.WP.AlternativeFunctions.unlink_unlink -- Isolated temporary test fixture.
 			unlink( $file );
 		}
 	}

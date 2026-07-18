@@ -70,7 +70,8 @@ final class GitHubUpdaterTest extends TestCase {
 
 	/** Drafts, prereleases, invalid assets, and missing checksums fail closed. */
 	public function test_rejects_untrusted_release_metadata_and_caches_failure(): void {
-		$release             = $this->release();
+		$release = $this->release();
+
 		$release['prerelease'] = true;
 		$this->configure_release( $release );
 
@@ -80,8 +81,10 @@ final class GitHubUpdaterTest extends TestCase {
 		self::assertSame( 3600, $GLOBALS['sfcart_test_transients']['sfcart_github_release_v1']['expiration'] );
 
 		GitHubUpdater::clear_cache();
-		$release                         = $this->release();
-		$release['assets'][0]['digest']   = '';
+		$release = $this->release();
+
+		$release['assets'][0]['digest'] = '';
+
 		$release['assets'][1]['browser_download_url'] = 'https://example.test/checksum';
 		$this->configure_release( $release );
 		self::assertFalse( $this->discover() );
@@ -112,7 +115,7 @@ final class GitHubUpdaterTest extends TestCase {
 
 		self::assertSame( $file, $result );
 		self::assertFileExists( $file );
-		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_unlink -- Isolated temporary test fixture.
+		// phpcs:ignore WordPress.WP.AlternativeFunctions.unlink_unlink -- Isolated temporary test fixture.
 		unlink( $file );
 	}
 
@@ -131,11 +134,16 @@ final class GitHubUpdaterTest extends TestCase {
 
 	/** Older GitHub releases can use the separately published checksum asset. */
 	public function test_accepts_checksum_asset_fallback(): void {
-		$content                  = 'fallback-checksum-package';
-		$checksum                 = hash( 'sha256', $content );
-		$release                  = $this->release( '' );
-		$file                     = $this->temporary_package( $content );
-		$checksum_url             = $this->checksum_url();
+		$content = 'fallback-checksum-package';
+
+		$checksum = hash( 'sha256', $content );
+
+		$release = $this->release( '' );
+
+		$file = $this->temporary_package( $content );
+
+		$checksum_url = $this->checksum_url();
+
 		$this->configure_release( $release );
 		$GLOBALS['sfcart_test_remote'][ $checksum_url ] = $this->http_response( $checksum . '  starfiniti-cart-1.4.0.zip' );
 		$GLOBALS['sfcart_test_downloads'][ $this->package_url() ] = $file;
@@ -144,7 +152,7 @@ final class GitHubUpdaterTest extends TestCase {
 
 		self::assertSame( $file, $result );
 		self::assertCount( 2, $GLOBALS['sfcart_test_requests'] );
-		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_unlink -- Isolated temporary test fixture.
+		// phpcs:ignore WordPress.WP.AlternativeFunctions.unlink_unlink -- Isolated temporary test fixture.
 		unlink( $file );
 	}
 
@@ -153,10 +161,24 @@ final class GitHubUpdaterTest extends TestCase {
 		$this->configure_release( $this->release() );
 		self::assertIsArray( $this->discover() );
 
-		GitHubUpdater::clear_cache_after_update( null, array( 'type' => 'plugin', 'action' => 'update', 'plugin' => 'other/other.php' ) );
+		GitHubUpdater::clear_cache_after_update(
+			null,
+			array(
+				'type'   => 'plugin',
+				'action' => 'update',
+				'plugin' => 'other/other.php',
+			)
+		);
 		self::assertNotEmpty( $GLOBALS['sfcart_test_transients'] );
 
-		GitHubUpdater::clear_cache_after_update( null, array( 'type' => 'plugin', 'action' => 'update', 'plugins' => array( 'starfiniti-cart/starfiniti-cart.php' ) ) );
+		GitHubUpdater::clear_cache_after_update(
+			null,
+			array(
+				'type'    => 'plugin',
+				'action'  => 'update',
+				'plugins' => array( 'starfiniti-cart/starfiniti-cart.php' ),
+			)
+		);
 		self::assertSame( array(), $GLOBALS['sfcart_test_transients'] );
 	}
 
@@ -170,12 +192,21 @@ final class GitHubUpdaterTest extends TestCase {
 		);
 	}
 
-	/** Configure the latest release endpoint. @param array<string, mixed> $release Release data. */
+	/**
+	 * Configure the latest release endpoint.
+	 *
+	 * @param array<string, mixed> $release Release data.
+	 */
 	private function configure_release( array $release ): void {
-		$GLOBALS['sfcart_test_remote'][ self::RELEASE_API ] = $this->http_response( (string) json_encode( $release ) );
+		$GLOBALS['sfcart_test_remote'][ self::RELEASE_API ] = $this->http_response( (string) wp_json_encode( $release ) );
 	}
 
-	/** @return array<string, mixed> */
+	/**
+	 * Build validated release API data.
+	 *
+	 * @param string $checksum Optional package digest.
+	 * @return array<string, mixed>
+	 */
 	private function release( string $checksum = '' ): array {
 		$digest = '' !== $checksum ? 'sha256:' . $checksum : '';
 		return array(
@@ -200,12 +231,24 @@ final class GitHubUpdaterTest extends TestCase {
 		);
 	}
 
-	/** @return array{response:array{code:int},body:string} */
+	/**
+	 * Build an isolated successful HTTP response.
+	 *
+	 * @param string $body Response body.
+	 * @return array{response:array{code:int},body:string}
+	 */
 	private function http_response( string $body ): array {
-		return array( 'response' => array( 'code' => 200 ), 'body' => $body );
+		return array(
+			'response' => array( 'code' => 200 ),
+			'body'     => $body,
+		);
 	}
 
-	/** Create an isolated temporary archive fixture. */
+	/**
+	 * Create an isolated temporary archive fixture.
+	 *
+	 * @param string $content Fixture contents.
+	 */
 	private function temporary_package( string $content ): string {
 		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_tempnam -- Isolated temporary test fixture.
 		$file = tempnam( sys_get_temp_dir(), 'sfcart-' );

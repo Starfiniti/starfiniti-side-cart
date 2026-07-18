@@ -220,7 +220,11 @@ final class GitHubUpdater {
 				return false;
 			}
 
-			/** @var array{version:string,package:string,checksum:string,checksum_url:string,html_url:string,body:string} $release */
+			/**
+			 * Validated cached release metadata.
+			 *
+			 * @var array{version:string,package:string,checksum:string,checksum_url:string,html_url:string,body:string} $release
+			 */
 			$release = $cached['release'];
 			return $release;
 		}
@@ -318,25 +322,40 @@ final class GitHubUpdater {
 		);
 	}
 
-	/** Validate a release asset URL against the owned repository and tag. */
+	/**
+	 * Validate a release asset URL against the owned repository and tag.
+	 *
+	 * @param string $url      Candidate asset URL.
+	 * @param string $tag      Validated release tag.
+	 * @param string $filename Exact expected filename.
+	 */
 	private static function valid_asset_url( string $url, string $tag, string $filename ): bool {
 		$parts = wp_parse_url( $url );
 		return is_array( $parts )
 			&& 'https' === strtolower( (string) ( $parts['scheme'] ?? '' ) )
 			&& 'github.com' === strtolower( (string) ( $parts['host'] ?? '' ) )
-			&& '/Starfiniti/starfiniti-side-cart/releases/download/' . $tag . '/' . $filename === (string) ( $parts['path'] ?? '' );
+			&& 0 === strcmp( '/Starfiniti/starfiniti-side-cart/releases/download/' . $tag . '/' . $filename, (string) ( $parts['path'] ?? '' ) );
 	}
 
-	/** Validate the human-readable release URL. */
+	/**
+	 * Validate the human-readable release URL.
+	 *
+	 * @param string $url Candidate release URL.
+	 * @param string $tag Validated release tag.
+	 */
 	private static function valid_release_url( string $url, string $tag ): bool {
 		$parts = wp_parse_url( $url );
 		return is_array( $parts )
 			&& 'https' === strtolower( (string) ( $parts['scheme'] ?? '' ) )
 			&& 'github.com' === strtolower( (string) ( $parts['host'] ?? '' ) )
-			&& '/Starfiniti/starfiniti-side-cart/releases/tag/' . $tag === (string) ( $parts['path'] ?? '' );
+			&& 0 === strcmp( '/Starfiniti/starfiniti-side-cart/releases/tag/' . $tag, (string) ( $parts['path'] ?? '' ) );
 	}
 
-	/** Fetch and parse a published checksum asset. */
+	/**
+	 * Fetch and parse a published checksum asset.
+	 *
+	 * @param string $url Validated checksum asset URL.
+	 */
 	private static function remote_checksum( string $url ): string|false {
 		if ( '' === $url ) {
 			return false;
@@ -350,7 +369,11 @@ final class GitHubUpdater {
 		return strtolower( $matches[1] );
 	}
 
-	/** Fetch a small public GitHub response without transmitting store data. */
+	/**
+	 * Fetch a small public GitHub response without transmitting store data.
+	 *
+	 * @param string $url Public GitHub URL.
+	 */
 	private static function request( string $url ): string|false {
 		$response = wp_safe_remote_get(
 			$url,
