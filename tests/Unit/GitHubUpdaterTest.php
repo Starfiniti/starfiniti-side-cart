@@ -146,6 +146,7 @@ final class GitHubUpdaterTest extends TestCase {
 
 		$this->configure_release( $release );
 		$GLOBALS['sfcart_test_remote'][ $checksum_url ] = $this->http_response( $checksum . '  starfiniti-cart-1.4.0.zip' );
+
 		$GLOBALS['sfcart_test_downloads'][ $this->package_url() ] = $file;
 
 		$result = GitHubUpdater::verify_download( false, $this->package_url(), null, array() );
