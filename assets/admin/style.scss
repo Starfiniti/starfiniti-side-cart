@@ -2238,6 +2238,16 @@
 	}
 }
 
+.sfcart-preview-drawer .sfcart-preview-upsells--style1,
+.sfcart-preview-drawer .sfcart-preview-upsells--style2 {
+	> :last-child {
+		max-height: none;
+		overflow-y: visible;
+		overscroll-behavior: auto;
+		scrollbar-gutter: auto;
+	}
+}
+
 .sfcart-preview-footer-links {
 	align-items: center;
 	display: flex;

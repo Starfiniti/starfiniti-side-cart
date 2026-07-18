@@ -188,15 +188,43 @@ test( 'native relationships, three layouts, variation adds, and attribution pass
 		/sfcart-recommendations--style1/
 	);
 	await expect( recommendations ).toContainText( 'Complete your cart' );
-	await expect( recommendations ).toContainText(
-		'Batch 2 Sold Individually'
-	);
-
 	const refreshRecommendations = async () => {
 		await dialog.getByRole( 'button', { name: 'Close cart' } ).click();
 		await page.locator( '.sfcart-floating-toggle' ).click();
 		await expect( dialog ).toBeVisible();
 	};
+
+	expect(
+		await recommendations.locator( '[data-sfcart-recommendation]' ).count()
+	).toBe( 1 );
+
+	await setUpsells( page, config, {
+		display_limit: 12,
+		layout: 'style2',
+		placement: 'before_totals',
+	} );
+	await refreshRecommendations();
+	expect(
+		await recommendations.locator( '[data-sfcart-recommendation]' ).count()
+	).toBe( 3 );
+	const compactItems = recommendations.locator(
+		'[data-sfcart-recommendations-items]'
+	);
+	expect(
+		await compactItems.evaluate(
+			( element ) => getComputedStyle( element ).overflowY
+		)
+	).toBe( 'visible' );
+
+	await setUpsells( page, config, {
+		display_limit: 12,
+		layout: 'style3',
+		placement: 'after_items',
+	} );
+	await refreshRecommendations();
+	await expect( recommendations ).toContainText(
+		'Batch 2 Sold Individually'
+	);
 
 	await setUpsells( page, config, {
 		excluded_product_ids: [ recommendationId ],

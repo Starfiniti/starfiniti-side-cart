@@ -271,7 +271,7 @@ const upsellLayouts: Array< {
 		value: 'style1',
 		label: __( 'Feature card', 'starfiniti-cart' ),
 		description: __(
-			'Wide product cards stacked vertically with maximum clarity.',
+			'One wide product card with maximum clarity.',
 			'starfiniti-cart'
 		),
 	},
@@ -1107,24 +1107,56 @@ export function App( { config }: Props ) {
 												} )
 											}
 										/>
-										<RangeControl
-											__next40pxDefaultSize
-											__nextHasNoMarginBottom
-											label={ __(
-												'Display limit',
-												'starfiniti-cart'
-											) }
-											min={ 1 }
-											max={ 12 }
-											value={
-												settings.upsells.display_limit
-											}
-											onChange={ ( value ) =>
-												updateUpsells( {
-													display_limit: value ?? 3,
-												} )
-											}
-										/>
+										{ settings.upsells.layout ===
+										'style1' ? (
+											<p className="sfcart-field-help">
+												{ __(
+													'Feature card displays one recommendation.',
+													'starfiniti-cart'
+												) }
+											</p>
+										) : (
+											<>
+												<RangeControl
+													__next40pxDefaultSize
+													__nextHasNoMarginBottom
+													label={ __(
+														'Display limit',
+														'starfiniti-cart'
+													) }
+													min={ 1 }
+													max={
+														settings.upsells
+															.layout === 'style2'
+															? 3
+															: 12
+													}
+													value={ Math.min(
+														settings.upsells
+															.display_limit,
+														settings.upsells
+															.layout === 'style2'
+															? 3
+															: 12
+													) }
+													onChange={ ( value ) =>
+														updateUpsells( {
+															display_limit:
+																value ?? 3,
+														} )
+													}
+												/>
+												{ settings.upsells.layout ===
+													'style2' && (
+													<p className="sfcart-field-help">
+														{ __(
+															'Compact cards display up to three recommendations in one row.',
+															'starfiniti-cart'
+														) }
+													</p>
+												) }
+											</>
+										) }
 										<ToggleControl
 											__nextHasNoMarginBottom
 											label={ __(

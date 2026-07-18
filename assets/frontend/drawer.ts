@@ -12,6 +12,7 @@ import type {
 	SpecialAddonProduct,
 } from './types';
 import { clampQuantity, createElement, formatTemplate } from './utils';
+import { recommendationDisplayLimit } from '../recommendations';
 
 const FOCUSABLE_SELECTOR = [
 	'a[href]',
@@ -882,8 +883,14 @@ export class DrawerController {
 
 	private renderRecommendations( state: CartState ): void {
 		const recommendations = state.recommendations;
-		const visible =
-			recommendations.enabled && recommendations.items.length > 0;
+		const visibleItems = recommendations.items.slice(
+			0,
+			recommendationDisplayLimit(
+				recommendations.layout,
+				recommendations.items.length
+			)
+		);
+		const visible = recommendations.enabled && visibleItems.length > 0;
 		this.recommendations.hidden = ! visible;
 
 		if ( ! visible ) {
@@ -920,16 +927,14 @@ export class DrawerController {
 			'[data-sfcart-recommendations-items]'
 		);
 		items.replaceChildren(
-			...recommendations.items.map( ( item ) =>
-				this.renderRecommendation( item )
-			)
+			...visibleItems.map( ( item ) => this.renderRecommendation( item ) )
 		);
 
 		const navigation = this.required< HTMLElement >(
 			'[data-sfcart-recommendations-navigation]'
 		);
 		const isCarousel = recommendations.layout === 'carousel';
-		navigation.hidden = ! isCarousel || recommendations.items.length < 2;
+		navigation.hidden = ! isCarousel || visibleItems.length < 2;
 		const previous = this.required< HTMLButtonElement >(
 			'[data-sfcart-carousel-previous]'
 		);
@@ -945,24 +950,20 @@ export class DrawerController {
 			this.config.labels.recommendationNext
 		);
 
-		const carouselSignature = `${
-			recommendations.layout
-		}:${ recommendations.items.map( ( item ) => item.id ).join( ',' ) }`;
+		const carouselSignature = `${ recommendations.layout }:${ visibleItems
+			.map( ( item ) => item.id )
+			.join( ',' ) }`;
 		if ( carouselSignature !== this.recommendationCarouselSignature ) {
 			this.recommendationCarouselSignature = carouselSignature;
 			this.recommendationCarouselIndex = 0;
 		}
 		this.updateRecommendationCarousel();
 
-		const signature = recommendations.items
-			.map( ( item ) => item.id )
-			.join( ',' );
+		const signature = visibleItems.map( ( item ) => item.id ).join( ',' );
 		if ( signature && signature !== this.impressionSignature ) {
 			this.impressionSignature = signature;
 			void this.api
-				.trackRecommendations(
-					recommendations.items.map( ( item ) => item.id )
-				)
+				.trackRecommendations( visibleItems.map( ( item ) => item.id ) )
 				.catch( () => undefined );
 		}
 	}

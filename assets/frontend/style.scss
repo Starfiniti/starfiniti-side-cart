@@ -892,6 +892,14 @@ input:focus-visible + .sfcart-special-addon__switch {
 	scrollbar-gutter: stable;
 }
 
+.sfcart-footer .sfcart-recommendations--style1 > [data-sfcart-recommendations-items],
+.sfcart-footer .sfcart-recommendations--style2 > [data-sfcart-recommendations-items] {
+	max-height: none;
+	overflow-y: visible;
+	overscroll-behavior: auto;
+	scrollbar-gutter: auto;
+}
+
 .sfcart-item__total {
 	font-size: 13.5px;
 }

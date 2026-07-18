@@ -7,6 +7,7 @@ import { CartIcon } from './CartIcon';
 import { languageValue } from './settings';
 import type { ProductSummary, Settings } from './types';
 import { buildRewardPreviewState } from './reward-preview';
+import { recommendationDisplayLimit } from '../recommendations';
 
 type Props = {
 	settings: Settings;
@@ -43,7 +44,13 @@ function UpsellPreview( { settings }: { settings: Settings } ) {
 		[ 'Ceramic Coaster', '€11.00' ],
 		[ 'Keepsake Box', '€19.00' ],
 		[ 'Hand Cream', '€13.50' ],
-	].slice( 0, settings.upsells.display_limit );
+	].slice(
+		0,
+		recommendationDisplayLimit(
+			settings.upsells.layout,
+			settings.upsells.display_limit
+		)
+	);
 	const activeCarouselIndex = Math.min(
 		carouselIndex,
 		Math.max( 0, products.length - 1 )

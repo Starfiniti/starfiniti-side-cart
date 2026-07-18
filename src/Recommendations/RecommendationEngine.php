@@ -56,9 +56,30 @@ final class RecommendationEngine {
 		}
 
 		self::order_items( $items, (string) $options['ordering'] );
-		$result['items'] = array_slice( $items, 0, (int) $options['display_limit'] );
+		$display_limit   = self::display_limit( $options );
+		$result['items'] = array_slice( $items, 0, $display_limit );
 
 		return $result;
+	}
+
+	/**
+	 * Resolve the maximum number of products supported by the selected layout.
+	 *
+	 * @param array<string, mixed> $options Normalized recommendation settings.
+	 */
+	private static function display_limit( array $options ): int {
+		$configured_limit = max( 1, (int) $options['display_limit'] );
+		$layout           = (string) $options['layout'];
+
+		if ( 'style1' === $layout ) {
+			return 1;
+		}
+
+		if ( 'style2' === $layout ) {
+			return min( 3, $configured_limit );
+		}
+
+		return $configured_limit;
 	}
 
 	/**
