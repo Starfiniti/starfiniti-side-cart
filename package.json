@@ -17,9 +17,9 @@
     "typecheck": "tsc --noEmit",
     "test:unit": "wp-scripts test-unit-js --runInBand --passWithNoTests",
     "playground": "wp-playground-cli start --blueprint=playground/blueprint.json",
-    "playground:ci": "wp-playground-cli server --blueprint=playground/blueprint.json --auto-mount --port=9400",
+    "playground:ci": "wp-playground-cli server --blueprint=playground/blueprint.json --mount-before-install=.:/wordpress/wp-content/plugins/starfiniti-cart --port=9400",
     "test:e2e": "playwright test",
-    "test:playground-conflict": "wp-playground-cli run-blueprint --blueprint=playground/conflict-blueprint.json --mount=.:/wordpress/wp-content/plugins/starfiniti-cart",
+    "test:playground-conflict": "wp-playground-cli run-blueprint --blueprint=playground/conflict-blueprint.json --mount-before-install=.:/wordpress/wp-content/plugins/starfiniti-cart",
     "check": "npm run lint:js && npm run lint:style && npm run typecheck && npm run test:unit && npm run build",
     "package": "npm run build && node scripts/package.mjs"
   },

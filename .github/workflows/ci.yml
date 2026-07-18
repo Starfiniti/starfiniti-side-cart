@@ -120,7 +120,7 @@ jobs:
                   rsync -a --exclude=.git --exclude=dist --exclude=node_modules --exclude=vendor "$GITHUB_WORKSPACE/" /tmp/wordpress/wp-content/plugins/starfiniti-cart/
                   composer install --working-dir=/tmp/wordpress/wp-content/plugins/starfiniti-cart --no-dev --no-interaction --optimize-autoloader
                   wp plugin activate starfiniti-cart --path=/tmp/wordpress
-                  wp eval 'if ( ! class_exists( "Starfiniti\\Cart\\Plugin" ) || ! Starfiniti\\Cart\\Plugin::instance()->is_ready() || 1 !== did_action( "sfcart_loaded" ) ) { exit( 1 ); }' --path=/tmp/wordpress
+                  wp eval 'if ( ! class_exists( "Starfiniti\\Cart\\Plugin" ) || ! Starfiniti\Cart\Plugin::instance()->is_ready() || 1 !== did_action( "sfcart_loaded" ) ) { exit( 1 ); }' --path=/tmp/wordpress
                   wp option update woocommerce_custom_orders_table_enabled yes --path=/tmp/wordpress
                   wp eval-file "$GITHUB_WORKSPACE/tests/integration/wp-cli-smoke.php" --path=/tmp/wordpress
                   wp plugin status starfiniti-cart --path=/tmp/wordpress

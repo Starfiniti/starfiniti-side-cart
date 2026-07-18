@@ -3,6 +3,8 @@ includes:
 
 parameters:
 	level: 6
+	parallel:
+		maximumNumberOfProcesses: 1
 	scanFiles:
 		- vendor/php-stubs/woocommerce-stubs/woocommerce-stubs.php
 		- vendor/php-stubs/woocommerce-stubs/woocommerce-packages-stubs.php

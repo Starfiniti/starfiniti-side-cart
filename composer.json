@@ -28,7 +28,7 @@
   },
   "scripts": {
     "lint": "phpcs",
-    "analyse": "phpstan analyse --no-progress --memory-limit=1G",
+    "analyse": "phpstan analyse --no-progress --memory-limit=2G",
     "test": "phpunit",
     "check": [
       "@lint",
