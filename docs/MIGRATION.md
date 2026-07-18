@@ -1,6 +1,6 @@
 # FunnelKit migration guide
 
-Version: 1.4.0
+Version: 1.4.1
 Date: 2026-07-17
 
 ## What is migrated
@@ -35,7 +35,7 @@ native product metadata and are not duplicated.
 
 1. Back up the staging database.
 2. Deactivate FunnelKit Cart.
-3. Activate Starfiniti Cart 1.4.0.
+3. Activate Starfiniti Cart 1.4.1.
 4. Run the migration preview.
 5. Confirm and run migration.
 6. Review the audit log.

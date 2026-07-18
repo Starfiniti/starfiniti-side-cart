@@ -1,6 +1,6 @@
 # Known limitations
 
-Version: 1.4.0
+Version: 1.4.1
 Date: 2026-07-18
 
 - This release is intended for Starfiniti-controlled staging/internal use before

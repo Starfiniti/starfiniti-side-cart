@@ -1,6 +1,6 @@
 # Installation guide
 
-Version: 1.4.0
+Version: 1.4.1
 Date: 2026-07-18
 
 ## Requirements
@@ -18,7 +18,7 @@ services.
 ## Fresh installation
 
 1. In WordPress admin, go to **Plugins → Add Plugin → Upload Plugin**.
-2. Upload `starfiniti-cart-1.4.0.zip`.
+2. Upload `starfiniti-cart-1.4.1.zip`.
 3. Activate **Starfiniti Cart for WooCommerce**.
 4. Open **WooCommerce → Starfiniti Cart**.
 5. Review Cart, Design, Upsells, Rewards, Special Add-on, Analytics, and Tools.
@@ -28,7 +28,7 @@ services.
 
 ## Updates
 
-After version 1.4.0 is installed, stable releases appear in the normal
+After version 1.4.1 is installed, stable releases appear in the normal
 WordPress Plugins screen. WordPress can update the plugin manually or through
 its standard per-plugin auto-update toggle. Updates come directly from the
 public Starfiniti GitHub repository and require no account, license key, or

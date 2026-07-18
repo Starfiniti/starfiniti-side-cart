@@ -12,7 +12,7 @@ require_once dirname( __DIR__ ) . '/phpunit-stubs/woocommerce.php';
 require_once dirname( __DIR__ ) . '/phpunit-stubs/wp-error.php';
 
 if ( ! defined( 'SFCART_VERSION' ) ) {
-	define( 'SFCART_VERSION', '1.4.0' );
+	define( 'SFCART_VERSION', '1.4.1' );
 }
 
 if ( ! defined( 'ARRAY_A' ) ) {

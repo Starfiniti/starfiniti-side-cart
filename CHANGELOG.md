@@ -2,6 +2,11 @@
 
 All notable changes to Starfiniti Cart for WooCommerce are documented here.
 
+## 1.4.1 - 2026-07-18
+
+- Limited Feature card recommendations to one product and Compact cards to three products across the server, storefront, and administration preview.
+- Removed nested vertical scrolling from Feature card and Compact card recommendation blocks while retaining configurable Product list and Slider behavior.
+
 ## 1.4.0 - 2026-07-18
 
 - Added native WordPress update discovery from stable public GitHub Releases.
