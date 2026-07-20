@@ -372,6 +372,7 @@ final class SettingsTest extends TestCase {
 	/** Badge colors remain customizable and never prevent saving. */
 	public function test_low_contrast_badge_colors_are_allowed(): void {
 		$settings = Settings::defaults();
+
 		$settings['design']['floating_badge_background']  = '#f3658f';
 		$settings['design']['floating_badge_color']       = '#ffffff';
 		$settings['design']['shortcode_badge_background'] = '#f3658f';
