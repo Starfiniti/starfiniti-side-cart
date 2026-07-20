@@ -1,6 +1,6 @@
 {
   "name": "starfiniti-cart",
-  "version": "1.4.1",
+  "version": "1.4.2",
   "private": true,
   "description": "Build tooling for Starfiniti Cart for WooCommerce.",
   "license": "GPL-3.0-or-later",

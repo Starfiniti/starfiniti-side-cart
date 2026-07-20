@@ -2,6 +2,12 @@
 
 All notable changes to Starfiniti Cart for WooCommerce are documented here.
 
+## 1.4.2 - 2026-07-20
+
+- Improved admin validation for floating and header cart badge colors so invalid contrast is caught before saving.
+- Automatically adjusts badge text to a readable black or white when the badge background changes.
+- Avoids early WordPress translation loading in settings defaults.
+
 ## 1.4.1 - 2026-07-18
 
 - Limited Feature card recommendations to one product and Compact cards to three products across the server, storefront, and administration preview.
