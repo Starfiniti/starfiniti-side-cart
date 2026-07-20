@@ -4,6 +4,7 @@ import { __ } from '@wordpress/i18n';
 import { CART_ICON_OPTIONS, CartIcon } from './CartIcon';
 import { ColorField } from './ColorField';
 import { MediaPicker } from './MediaPicker';
+import { contrastRatio, readableTextColor } from './settings';
 import type { CartIconName, CartSettings, DesignSettings } from './types';
 
 type ColorKey =
@@ -197,6 +198,26 @@ function ColorControls( {
 }: Pick< Props, 'design' | 'onChange' > & {
 	fields: ColorFieldDefinition[];
 } ) {
+	const updateColor = ( key: ColorKey, value: string ) => {
+		const patch: Partial< DesignSettings > = { [ key ]: value };
+
+		if (
+			key === 'floating_badge_background' &&
+			contrastRatio( design.floating_badge_color, value ) < 4.5
+		) {
+			patch.floating_badge_color = readableTextColor( value );
+		}
+
+		if (
+			key === 'shortcode_badge_background' &&
+			contrastRatio( design.shortcode_badge_color, value ) < 4.5
+		) {
+			patch.shortcode_badge_color = readableTextColor( value );
+		}
+
+		onChange( patch );
+	};
+
 	return (
 		<div className="sfcart-field-grid sfcart-color-grid">
 			{ fields.map( ( field ) => (
@@ -205,9 +226,7 @@ function ColorControls( {
 					label={ field.label }
 					value={ design[ field.key ] }
 					enableAlpha={ field.enableAlpha }
-					onChange={ ( value ) =>
-						onChange( { [ field.key ]: value } )
-					}
+					onChange={ ( value ) => updateColor( field.key, value ) }
 				/>
 			) ) }
 		</div>

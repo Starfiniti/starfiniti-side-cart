@@ -29,6 +29,98 @@ export function isHexColor( value: string ): boolean {
 	return /^#[0-9a-f]{6}(?:[0-9a-f]{2})?$/i.test( value );
 }
 
+type Rgba = [ number, number, number, number ];
+
+function colorChannels( color: string ): Rgba {
+	const hex = color.slice( 1 );
+	const alpha =
+		hex.length === 8 ? Number.parseInt( hex.slice( 6, 8 ), 16 ) / 255 : 1;
+
+	return [
+		Number.parseInt( hex.slice( 0, 2 ), 16 ) / 255,
+		Number.parseInt( hex.slice( 2, 4 ), 16 ) / 255,
+		Number.parseInt( hex.slice( 4, 6 ), 16 ) / 255,
+		alpha,
+	];
+}
+
+function compositeColor( color: Rgba, backdrop: Rgba ): Rgba {
+	const alpha = color[ 3 ] + backdrop[ 3 ] * ( 1 - color[ 3 ] );
+
+	if ( alpha <= 0 ) {
+		return [ 1, 1, 1, 1 ];
+	}
+
+	return [
+		( color[ 0 ] * color[ 3 ] +
+			backdrop[ 0 ] * backdrop[ 3 ] * ( 1 - color[ 3 ] ) ) /
+			alpha,
+		( color[ 1 ] * color[ 3 ] +
+			backdrop[ 1 ] * backdrop[ 3 ] * ( 1 - color[ 3 ] ) ) /
+			alpha,
+		( color[ 2 ] * color[ 3 ] +
+			backdrop[ 2 ] * backdrop[ 3 ] * ( 1 - color[ 3 ] ) ) /
+			alpha,
+		alpha,
+	];
+}
+
+function channelLuminance( channel: number ): number {
+	return channel <= 0.03928
+		? channel / 12.92
+		: Math.pow( ( channel + 0.055 ) / 1.055, 2.4 );
+}
+
+function relativeLuminance( color: Rgba ): number {
+	return (
+		0.2126 * channelLuminance( color[ 0 ] ) +
+		0.7152 * channelLuminance( color[ 1 ] ) +
+		0.0722 * channelLuminance( color[ 2 ] )
+	);
+}
+
+export function contrastRatio(
+	foreground: string,
+	background: string,
+	canvas = '#ffffff'
+): number {
+	if (
+		! isHexColor( foreground ) ||
+		! isHexColor( background ) ||
+		! isHexColor( canvas )
+	) {
+		return Number.POSITIVE_INFINITY;
+	}
+
+	const white: Rgba = [ 1, 1, 1, 1 ];
+	const canvasColor = compositeColor( colorChannels( canvas ), white );
+	const backgroundColor = compositeColor(
+		colorChannels( background ),
+		canvasColor
+	);
+	const foregroundColor = compositeColor(
+		colorChannels( foreground ),
+		backgroundColor
+	);
+	const lighter = Math.max(
+		relativeLuminance( foregroundColor ),
+		relativeLuminance( backgroundColor )
+	);
+	const darker = Math.min(
+		relativeLuminance( foregroundColor ),
+		relativeLuminance( backgroundColor )
+	);
+
+	return ( lighter + 0.05 ) / ( darker + 0.05 );
+}
+
+export function readableTextColor( background: string ): '#000000' | '#ffffff' {
+	return contrastRatio( '#000000', background ) >=
+		contrastRatio( '#ffffff', background )
+		? '#000000'
+		: '#ffffff';
+}
+
 const fieldLabels: Record< string, string > = {
 	'cart.position': __( 'Drawer position', 'starfiniti-cart' ),
 	'cart.width': __( 'Drawer width', 'starfiniti-cart' ),
@@ -48,6 +140,14 @@ const fieldLabels: Record< string, string > = {
 	),
 	'design.shortcode_icon_id': __(
 		'Header cart custom icon',
+		'starfiniti-cart'
+	),
+	'design.floating_badge_color': __(
+		'Floating count text color',
+		'starfiniti-cart'
+	),
+	'design.shortcode_badge_color': __(
+		'Header count text color',
 		'starfiniti-cart'
 	),
 };
@@ -274,6 +374,39 @@ export function settingsValidationIssues(
 			);
 		}
 	}
+
+	const contrast = (
+		path: string,
+		foreground: string,
+		background: string,
+		canvas = '#ffffff'
+	) => {
+		if (
+			isHexColor( foreground ) &&
+			isHexColor( background ) &&
+			isHexColor( canvas ) &&
+			contrastRatio( foreground, background, canvas ) < 4.5
+		) {
+			add(
+				path,
+				__(
+					'Choose a text color with at least 4.5:1 contrast against its background.',
+					'starfiniti-cart'
+				)
+			);
+		}
+	};
+
+	contrast(
+		'design.floating_badge_color',
+		settings.design.floating_badge_color,
+		settings.design.floating_badge_background
+	);
+	contrast(
+		'design.shortcode_badge_color',
+		settings.design.shortcode_badge_color,
+		settings.design.shortcode_badge_background
+	);
 
 	settings.rewards.milestones.forEach( ( milestone, index ) => {
 		if ( milestone.threshold < 0 ) {
