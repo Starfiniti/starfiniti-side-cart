@@ -375,39 +375,6 @@ export function settingsValidationIssues(
 		}
 	}
 
-	const contrast = (
-		path: string,
-		foreground: string,
-		background: string,
-		canvas = '#ffffff'
-	) => {
-		if (
-			isHexColor( foreground ) &&
-			isHexColor( background ) &&
-			isHexColor( canvas ) &&
-			contrastRatio( foreground, background, canvas ) < 4.5
-		) {
-			add(
-				path,
-				__(
-					'Choose a text color with at least 4.5:1 contrast against its background.',
-					'starfiniti-cart'
-				)
-			);
-		}
-	};
-
-	contrast(
-		'design.floating_badge_color',
-		settings.design.floating_badge_color,
-		settings.design.floating_badge_background
-	);
-	contrast(
-		'design.shortcode_badge_color',
-		settings.design.shortcode_badge_color,
-		settings.design.shortcode_badge_background
-	);
-
 	settings.rewards.milestones.forEach( ( milestone, index ) => {
 		if ( milestone.threshold < 0 ) {
 			add(

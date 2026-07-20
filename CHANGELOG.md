@@ -2,6 +2,10 @@
 
 All notable changes to Starfiniti Cart for WooCommerce are documented here.
 
+## 1.4.3 - 2026-07-20
+
+- Keeps accessible badge defaults and automatic readable-color suggestions without blocking merchants from saving custom badge colors.
+
 ## 1.4.2 - 2026-07-20
 
 - Improved admin validation for floating and header cart badge colors so invalid contrast is caught before saving.

@@ -245,10 +245,8 @@ final class Settings {
 		self::validate_contrast( $errors, 'design.danger', $design_colors['danger'], $design_colors['background'] );
 		self::validate_contrast( $errors, 'design.floating_icon_color', $design_colors['floating_icon_color'], $design_colors['floating_background'] );
 		self::validate_contrast( $errors, 'design.floating_hover', $design_colors['floating_icon_color'], $design_colors['floating_hover'] );
-		self::validate_contrast( $errors, 'design.floating_badge_color', $design_colors['floating_badge_color'], $design_colors['floating_badge_background'] );
 		self::validate_contrast( $errors, 'design.shortcode_icon_color', $design_colors['shortcode_icon_color'], $design_colors['shortcode_background'] );
 		self::validate_contrast( $errors, 'design.shortcode_hover', $design_colors['shortcode_icon_color'], $design_colors['shortcode_hover'] );
-		self::validate_contrast( $errors, 'design.shortcode_badge_color', $design_colors['shortcode_badge_color'], $design_colors['shortcode_badge_background'] );
 
 		if ( isset( $design['border_radius'] ) && ( ! is_numeric( $design['border_radius'] ) || (int) $design['border_radius'] < 0 || (int) $design['border_radius'] > 32 ) ) {
 			$errors['design.border_radius'] = __( 'Border radius must be between 0 and 32 pixels.', 'starfiniti-cart' );

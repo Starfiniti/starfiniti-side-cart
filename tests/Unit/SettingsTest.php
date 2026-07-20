@@ -369,6 +369,20 @@ final class SettingsTest extends TestCase {
 		self::assertArrayHasKey( 'special_addon.description_color', $errors );
 	}
 
+	/** Badge colors remain customizable and never prevent saving. */
+	public function test_low_contrast_badge_colors_are_allowed(): void {
+		$settings = Settings::defaults();
+		$settings['design']['floating_badge_background']  = '#f3658f';
+		$settings['design']['floating_badge_color']       = '#ffffff';
+		$settings['design']['shortcode_badge_background'] = '#f3658f';
+		$settings['design']['shortcode_badge_color']      = '#ffffff';
+
+		$errors = Settings::validation_errors( $settings );
+
+		self::assertArrayNotHasKey( 'design.floating_badge_color', $errors );
+		self::assertArrayNotHasKey( 'design.shortcode_badge_color', $errors );
+	}
+
 	/**
 	 * Only explicit truthy settings enable destructive cleanup.
 	 */
