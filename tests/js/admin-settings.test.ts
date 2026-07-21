@@ -1,10 +1,11 @@
 import {
+	cartTotalsVisibility,
 	isHexColor,
 	languageValue,
 	readableTextColor,
 	toggleIdentifier,
 } from '../../assets/admin/settings';
-import type { LanguageSettings } from '../../assets/admin/types';
+import type { CartSettings, LanguageSettings } from '../../assets/admin/types';
 import { apiErrorDetails } from '../../assets/admin/api';
 
 const language = {
@@ -23,6 +24,52 @@ const language = {
 } satisfies LanguageSettings;
 
 describe( 'administration settings helpers', () => {
+	const cart = {
+		position: 'right',
+		width: 440,
+		auto_open: true,
+		floating_button: true,
+		header_cart: true,
+		coupons: true,
+		totals_display: 'full',
+		show_subtotal: true,
+		show_shipping: true,
+		show_tax: true,
+		show_total: true,
+		show_cart_link: true,
+		show_continue_shopping: true,
+	} satisfies CartSettings;
+
+	it( 'resolves all cart totals display modes consistently', () => {
+		expect( cartTotalsVisibility( cart ) ).toEqual( {
+			subtotal: true,
+			shipping: true,
+			tax: true,
+			total: true,
+		} );
+		expect(
+			cartTotalsVisibility( { ...cart, totals_display: 'subtotal' } )
+		).toEqual( {
+			subtotal: true,
+			shipping: false,
+			tax: false,
+			total: false,
+		} );
+		expect(
+			cartTotalsVisibility( {
+				...cart,
+				totals_display: 'custom',
+				show_subtotal: false,
+				show_shipping: false,
+			} )
+		).toEqual( {
+			subtotal: false,
+			shipping: false,
+			tax: true,
+			total: true,
+		} );
+	} );
+
 	it( 'uses translated fallbacks only for blank language overrides', () => {
 		expect( languageValue( language, 'title', 'Your cart' ) ).toBe(
 			'Your cart'

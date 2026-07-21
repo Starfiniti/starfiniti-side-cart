@@ -549,12 +549,16 @@ export class DrawerController {
 			! state.coupons_enabled || ! this.config.behavior.coupons;
 
 		this.setText( '[data-sfcart-subtotal]', state.subtotal );
+		this.required< HTMLElement >( '[data-sfcart-subtotal-row]' ).hidden =
+			! this.config.behavior.showSubtotal;
 		document
 			.querySelectorAll< HTMLElement >( '[data-sfcart-trigger-subtotal]' )
 			.forEach( ( subtotal ) => {
 				subtotal.textContent = state.subtotal;
 			} );
 		this.setText( '[data-sfcart-total]', state.total );
+		this.required< HTMLElement >( '[data-sfcart-total-row]' ).hidden =
+			! this.config.behavior.showTotal;
 		this.setOptionalRow(
 			'[data-sfcart-shipping-row]',
 			'[data-sfcart-shipping]',
@@ -564,6 +568,12 @@ export class DrawerController {
 			'[data-sfcart-tax-row]',
 			'[data-sfcart-tax]',
 			this.config.behavior.showTax ? state.tax : ''
+		);
+		this.required< HTMLElement >( '[data-sfcart-totals]' ).hidden = ! (
+			this.config.behavior.showSubtotal ||
+			this.config.behavior.showShipping ||
+			this.config.behavior.showTax ||
+			this.config.behavior.showTotal
 		);
 
 		this.required< HTMLAnchorElement >( '[data-sfcart-checkout]' ).href =

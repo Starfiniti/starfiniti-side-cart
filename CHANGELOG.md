@@ -2,6 +2,12 @@
 
 All notable changes to Starfiniti Cart for WooCommerce are documented here.
 
+## 1.5.0 - 2026-07-21
+
+- Added Full breakdown, Subtotal only, and Custom display modes for cart totals.
+- Custom mode can independently show or hide subtotal, shipping, tax, and grand total rows.
+- Kept the administration preview and storefront drawer synchronized and preserved existing visibility settings during upgrades.
+
 ## 1.4.5 - 2026-07-21
 
 - Allows merchants to save any valid accent and hover color without blocking unrelated settings.

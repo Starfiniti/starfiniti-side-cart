@@ -154,8 +154,10 @@ export type SfcartConfig = {
 	behavior: {
 		autoOpen: boolean;
 		coupons: boolean;
+		showSubtotal: boolean;
 		showShipping: boolean;
 		showTax: boolean;
+		showTotal: boolean;
 		showCartLink: boolean;
 		showContinueShopping: boolean;
 	};

@@ -665,34 +665,100 @@ export function App( { config }: Props ) {
 												updateCart( { coupons: value } )
 											}
 										/>
-										<ToggleControl
+										<SelectControl
 											__nextHasNoMarginBottom
 											label={ __(
-												'Show shipping total',
+												'Cart totals display',
 												'starfiniti-cart'
 											) }
-											checked={
-												settings.cart.show_shipping
+											help={ __(
+												'Choose which amount rows appear above checkout.',
+												'starfiniti-cart'
+											) }
+											value={
+												settings.cart.totals_display
 											}
+											options={ [
+												{
+													label: __(
+														'Full breakdown',
+														'starfiniti-cart'
+													),
+													value: 'full',
+												},
+												{
+													label: __(
+														'Subtotal only',
+														'starfiniti-cart'
+													),
+													value: 'subtotal',
+												},
+												{
+													label: __(
+														'Custom',
+														'starfiniti-cart'
+													),
+													value: 'custom',
+												},
+											] }
 											onChange={ ( value ) =>
 												updateCart( {
-													show_shipping: value,
+													totals_display:
+														value as CartSettings[ 'totals_display' ],
 												} )
 											}
 										/>
-										<ToggleControl
-											__nextHasNoMarginBottom
-											label={ __(
-												'Show tax total',
-												'starfiniti-cart'
-											) }
-											checked={ settings.cart.show_tax }
-											onChange={ ( value ) =>
-												updateCart( {
-													show_tax: value,
-												} )
-											}
-										/>
+										{ settings.cart.totals_display ===
+											'custom' && (
+											<>
+												{ (
+													[
+														[
+															'show_subtotal',
+															__(
+																'Show subtotal',
+																'starfiniti-cart'
+															),
+														],
+														[
+															'show_shipping',
+															__(
+																'Show shipping',
+																'starfiniti-cart'
+															),
+														],
+														[
+															'show_tax',
+															__(
+																'Show tax',
+																'starfiniti-cart'
+															),
+														],
+														[
+															'show_total',
+															__(
+																'Show total',
+																'starfiniti-cart'
+															),
+														],
+													] as const
+												 ).map( ( [ key, label ] ) => (
+													<ToggleControl
+														key={ key }
+														__nextHasNoMarginBottom
+														label={ label }
+														checked={
+															settings.cart[ key ]
+														}
+														onChange={ ( value ) =>
+															updateCart( {
+																[ key ]: value,
+															} )
+														}
+													/>
+												) ) }
+											</>
+										) }
 										<ToggleControl
 											__nextHasNoMarginBottom
 											label={ __(

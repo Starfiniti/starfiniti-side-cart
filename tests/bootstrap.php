@@ -13,7 +13,7 @@ require_once dirname( __DIR__ ) . '/phpunit-stubs/wp-error.php';
 require_once dirname( __DIR__ ) . '/phpunit-stubs/wp-rest-request.php';
 
 if ( ! defined( 'SFCART_VERSION' ) ) {
-	define( 'SFCART_VERSION', '1.4.5' );
+	define( 'SFCART_VERSION', '1.5.0' );
 }
 
 if ( ! defined( 'ARRAY_A' ) ) {

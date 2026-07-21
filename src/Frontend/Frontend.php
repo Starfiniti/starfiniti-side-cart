@@ -51,13 +51,16 @@ final class Frontend {
 		wp_enqueue_style( 'sfcart-frontend', SFCART_PLUGIN_URL . 'build/style-frontend.css', array(), SFCART_VERSION );
 		wp_enqueue_script( 'sfcart-frontend', SFCART_PLUGIN_URL . 'build/frontend.js', $dependencies, $version, true );
 
-		$settings      = Settings::get();
-		$configuration = array(
+		$settings          = Settings::get();
+		$totals_visibility = Settings::cart_totals_visibility( $settings['cart'] );
+		$configuration     = array(
 			'behavior'  => array(
 				'autoOpen'             => (bool) $settings['cart']['auto_open'],
 				'coupons'              => (bool) $settings['cart']['coupons'],
-				'showShipping'         => (bool) $settings['cart']['show_shipping'],
-				'showTax'              => (bool) $settings['cart']['show_tax'],
+				'showSubtotal'         => $totals_visibility['subtotal'],
+				'showShipping'         => $totals_visibility['shipping'],
+				'showTax'              => $totals_visibility['tax'],
+				'showTotal'            => $totals_visibility['total'],
 				'showCartLink'         => (bool) $settings['cart']['show_cart_link'],
 				'showContinueShopping' => (bool) $settings['cart']['show_continue_shopping'],
 			),
