@@ -63,16 +63,13 @@ final class AdminPage {
 			return;
 		}
 
-		$asset_path    = SFCART_PLUGIN_DIR . 'build/admin.asset.php';
-		$asset         = is_readable( $asset_path ) ? require $asset_path : array();
-		$version       = is_array( $asset ) && isset( $asset['version'] ) ? (string) $asset['version'] : SFCART_VERSION;
-		$dependencies  = is_array( $asset ) && isset( $asset['dependencies'] ) && is_array( $asset['dependencies'] ) ? $asset['dependencies'] : array();
-		$style_path    = SFCART_PLUGIN_DIR . 'build/style-admin.css';
-		$style_hash    = is_readable( $style_path ) ? hash_file( 'sha256', $style_path ) : false;
-		$style_version = is_string( $style_hash ) ? SFCART_VERSION . '.' . substr( $style_hash, 0, 12 ) : $version;
+		$asset_path   = SFCART_PLUGIN_DIR . 'build/admin.asset.php';
+		$asset        = is_readable( $asset_path ) ? require $asset_path : array();
+		$version      = is_array( $asset ) && isset( $asset['version'] ) ? (string) $asset['version'] : SFCART_VERSION;
+		$dependencies = is_array( $asset ) && isset( $asset['dependencies'] ) && is_array( $asset['dependencies'] ) ? $asset['dependencies'] : array();
 
 		wp_enqueue_media();
-		wp_enqueue_style( 'sfcart-admin', SFCART_PLUGIN_URL . 'build/style-admin.css', array( 'wp-components', 'dashicons' ), $style_version );
+		wp_enqueue_style( 'sfcart-admin', SFCART_PLUGIN_URL . 'build/style-admin.css', array( 'wp-components', 'dashicons' ), SFCART_VERSION );
 		wp_enqueue_script( 'sfcart-admin', SFCART_PLUGIN_URL . 'build/admin.js', $dependencies, $version, true );
 		wp_add_inline_script(
 			'sfcart-admin',

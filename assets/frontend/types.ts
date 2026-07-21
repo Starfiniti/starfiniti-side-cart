@@ -142,6 +142,7 @@ export type CartState = {
 	rewards: RewardsState;
 	special_addon: SpecialAddonState;
 	nonce: string;
+	token: string;
 	urls: {
 		cart: string;
 		checkout: string;

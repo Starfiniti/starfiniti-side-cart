@@ -192,9 +192,7 @@ final class Recorder {
 				'currency'   => $order->get_currency(),
 				'total'      => $order->get_total(),
 				'revenue'    => self::attributed_total( $order ),
-				'metadata'   => array(
-					'payment_method' => $order->get_payment_method(),
-				),
+				'metadata'   => array(),
 			)
 		);
 
@@ -233,7 +231,6 @@ final class Recorder {
 				'currency'   => $order->get_currency(),
 				'refunded'   => $amount,
 				'metadata'   => array(
-					'reason'             => $refund->get_reason(),
 					'order_refund_total' => abs( (float) $refund->get_amount() ),
 				),
 			)

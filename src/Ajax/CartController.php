@@ -10,10 +10,12 @@ namespace Starfiniti\Cart\Ajax;
 use DomainException;
 use Starfiniti\Cart\AddOn\SpecialAddOn;
 use Starfiniti\Cart\Analytics\PublicEventPolicy;
+use Starfiniti\Cart\Analytics\PublicRateLimiter;
 use Starfiniti\Cart\Analytics\Recorder;
 use Starfiniti\Cart\Cart\CartState;
 use Starfiniti\Cart\Cart\Notices;
 use Starfiniti\Cart\Cart\Quantity;
+use Starfiniti\Cart\Cart\SessionToken;
 use Starfiniti\Cart\Recommendations\Attribution;
 use Starfiniti\Cart\Recommendations\RecommendationEngine;
 use Starfiniti\Cart\Rewards\RewardEngine;
@@ -302,6 +304,9 @@ final class CartController {
 	public static function track_recommendations(): void {
 		try {
 			self::verify_nonce();
+			if ( ! self::consume_analytics_quota() ) {
+				self::fail_tracking( __( 'Too many cart events were received. Try again later.', 'starfiniti-cart' ), 429 );
+			}
 			$requested = array_values( array_unique( array_filter( array_map( 'absint', explode( ',', self::post_string( 'product_ids' ) ) ) ) ) );
 			$snapshot  = RecommendationEngine::snapshot( self::cart() );
 			Attribution::record_impressions( $snapshot['items'], $requested );
@@ -337,7 +342,12 @@ final class CartController {
 				$event['metadata']
 			);
 
-			wp_send_json_success( array( 'nonce' => wp_create_nonce( 'sfcart_cart' ) ) );
+			wp_send_json_success(
+				array(
+					'nonce' => wp_create_nonce( 'sfcart_cart' ),
+					'token' => SessionToken::current(),
+				)
+			);
 		} catch ( Throwable $error ) {
 			Logger::exception( 'Cart analytics event failed.', $error );
 			self::fail_tracking( __( 'The cart event could not be recorded.', 'starfiniti-cart' ), 500 );
@@ -357,7 +367,7 @@ final class CartController {
 		}
 
 		$session->set( self::ANALYTICS_QUOTA_KEY, $quota['state'] );
-		return true;
+		return PublicRateLimiter::consume();
 	}
 
 	/**
@@ -520,12 +530,13 @@ final class CartController {
 	}
 
 	/**
-	 * Verify the session-scoped frontend mutation nonce.
+	 * Verify the frontend nonce and WooCommerce-session request token.
 	 */
 	private static function verify_nonce(): void {
 		$nonce = self::post_string( 'nonce' );
+		$token = self::post_string( 'token' );
 
-		if ( '' === $nonce || ! wp_verify_nonce( $nonce, 'sfcart_cart' ) ) {
+		if ( '' === $nonce || ! wp_verify_nonce( $nonce, 'sfcart_cart' ) || ! SessionToken::verify( $token ) ) {
 			self::fail( __( 'Your cart session expired. Refresh the page and try again.', 'starfiniti-cart' ), 403 );
 		}
 	}
@@ -568,6 +579,7 @@ final class CartController {
 			array(
 				'message' => $message,
 				'nonce'   => wp_create_nonce( 'sfcart_cart' ),
+				'token'   => SessionToken::current(),
 			),
 			$status
 		);
@@ -592,6 +604,7 @@ final class CartController {
 					),
 				),
 				'nonce'   => wp_create_nonce( 'sfcart_cart' ),
+				'token'   => SessionToken::current(),
 			);
 			$success = false;
 			$status  = 500;

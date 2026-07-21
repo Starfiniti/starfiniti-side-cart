@@ -130,7 +130,9 @@ nonce. Recommendation integrations can consume
 anonymous cart-session, paid-order, refund, recommendation, reward, and
 special-add-on events in Starfiniti-owned tables and is read through
 authenticated REST endpoints. Cart sessions use a random hashed identifier and
-store no customer name, email address, IP address, or payment data.
+store no customer name, email address, raw IP address, payment credentials, or
+free-form refund reasons. Order-linked analytics can be exported or erased with
+the WordPress personal-data tools.
 
 Reward amount adapters may use `sfcart_reward_amount` to convert the evaluated
 subtotal or total while preserving the owned milestone engine. The engine
@@ -153,7 +155,9 @@ plugin is active, and no other plugin is ever deactivated automatically.
 Plugin data is retained on uninstall by default. Destructive cleanup must be
 explicitly enabled in the Tools section. Deactivation never deletes data, and
 the uninstall handler deletes only Starfiniti-owned options and analytics
-tables on sites that opted in.
+tables on sites that opted in. Analytics events are retained for 365 days by
+default, can be configured from 30 to 3650 days in Tools, and are pruned daily
+by WP-Cron.
 
 ## Optional legacy migration
 

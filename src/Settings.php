@@ -13,6 +13,20 @@ namespace Starfiniti\Cart;
 final class Settings {
 
 	/**
+	 * Request-local normalized settings cache.
+	 *
+	 * @var array<string, mixed>|null
+	 */
+	private static ?array $cache = null;
+
+	/**
+	 * Hash of the raw option represented by the request-local cache.
+	 *
+	 * @var string
+	 */
+	private static string $cache_hash = '';
+
+	/**
 	 * Plugin settings option name.
 	 */
 	public const OPTION_NAME = 'sfcart_settings';
@@ -20,12 +34,15 @@ final class Settings {
 	/**
 	 * Current settings document version.
 	 */
-	public const SCHEMA_VERSION = 11;
+	public const SCHEMA_VERSION = 12;
 
 	/**
 	 * Delete-data setting key. Kept at the document root for uninstall safety.
 	 */
 	public const DELETE_DATA_KEY = 'delete_data_on_uninstall';
+
+	/** Analytics retention setting key. */
+	public const ANALYTICS_RETENTION_KEY = 'analytics_retention_days';
 
 	/**
 	 * Return the complete, owned settings shape.
@@ -38,8 +55,8 @@ final class Settings {
 	 */
 	public static function defaults(): array {
 		return array(
-			'settings_version'    => self::SCHEMA_VERSION,
-			'cart'                => array(
+			'settings_version'            => self::SCHEMA_VERSION,
+			'cart'                        => array(
 				'position'               => 'right',
 				'width'                  => 440,
 				'auto_open'              => true,
@@ -51,7 +68,7 @@ final class Settings {
 				'show_cart_link'         => true,
 				'show_continue_shopping' => true,
 			),
-			'design'              => array(
+			'design'                      => array(
 				'floating_icon'              => 'shopping-cart',
 				'floating_icon_id'           => 0,
 				'floating_icon_url'          => '',
@@ -90,7 +107,7 @@ final class Settings {
 				'empty_image_id'             => 0,
 				'empty_image_url'            => '',
 			),
-			'language'            => array(
+			'language'                    => array(
 				'title'             => '',
 				'close'             => '',
 				'loading'           => '',
@@ -104,7 +121,7 @@ final class Settings {
 				'calculation_note'  => '',
 				'open_cart'         => '',
 			),
-			'upsells'             => array(
+			'upsells'                     => array(
 				'enabled'              => false,
 				'mode'                 => 'both',
 				'layout'               => 'style1',
@@ -116,7 +133,7 @@ final class Settings {
 				'display_limit'        => 3,
 				'always_show_defaults' => false,
 			),
-			'rewards'             => array(
+			'rewards'                     => array(
 				'enabled'            => false,
 				'calculation_mode'   => 'subtotal',
 				'progress_design'    => 'bar',
@@ -124,7 +141,7 @@ final class Settings {
 				'allow_gift_removal' => false,
 				'milestones'         => array(),
 			),
-			'special_addon'       => array(
+			'special_addon'               => array(
 				'enabled'           => false,
 				'product_id'        => 0,
 				'preselected'       => false,
@@ -141,7 +158,8 @@ final class Settings {
 				'heading_color'     => '#111827',
 				'description_color' => '#6b7280',
 			),
-			self::DELETE_DATA_KEY => false,
+			self::ANALYTICS_RETENTION_KEY => 365,
+			self::DELETE_DATA_KEY         => false,
 		);
 	}
 
@@ -152,8 +170,15 @@ final class Settings {
 	 */
 	public static function get(): array {
 		$stored = get_option( self::OPTION_NAME, array() );
+		$stored = is_array( $stored ) ? $stored : array();
+		$hash   = self::raw_hash( $stored );
+		if ( null !== self::$cache && hash_equals( self::$cache_hash, $hash ) ) {
+			return self::$cache;
+		}
 
-		return self::sanitize( is_array( $stored ) ? $stored : array() );
+		self::$cache      = self::sanitize( $stored );
+		self::$cache_hash = $hash;
+		return self::$cache;
 	}
 
 	/**
@@ -165,8 +190,13 @@ final class Settings {
 	public static function update( array $settings ): array {
 		$stored   = get_option( self::OPTION_NAME, false );
 		$settings = self::sanitize( $settings );
-		$changed  = ! is_array( $stored ) || self::sanitize( $stored ) !== $settings;
-		update_option( self::OPTION_NAME, $settings, false );
+		$current  = is_array( $stored ) ? self::normalize_raw( $stored ) : null;
+		$changed  = null === $current || $current !== $settings;
+		if ( $changed ) {
+			update_option( self::OPTION_NAME, $settings, false );
+		}
+		self::$cache      = $settings;
+		self::$cache_hash = self::raw_hash( $settings );
 		if ( $changed ) {
 			do_action( 'sfcart_settings_updated', $settings );
 		}
@@ -178,14 +208,47 @@ final class Settings {
 	 * Create the settings option or repair missing defaults.
 	 */
 	public static function ensure_defaults(): void {
-		$settings = self::get();
-
-		if ( false === get_option( self::OPTION_NAME, false ) ) {
+		$stored = get_option( self::OPTION_NAME, false );
+		if ( false === $stored ) {
+			$settings = self::sanitize( array() );
 			add_option( self::OPTION_NAME, $settings, '', false );
+			self::$cache      = $settings;
+			self::$cache_hash = self::raw_hash( $settings );
 			return;
 		}
 
-		self::update( $settings );
+		$stored   = is_array( $stored ) ? $stored : array();
+		$settings = self::normalize_raw( $stored );
+		if ( $stored !== $settings ) {
+			update_option( self::OPTION_NAME, $settings, false );
+		}
+		self::$cache      = $settings;
+		self::$cache_hash = self::raw_hash( $settings );
+	}
+
+	/**
+	 * Normalize a raw option while reusing the request-local cache.
+	 *
+	 * @param array<string, mixed> $stored Raw settings document.
+	 * @return array<string, mixed>
+	 */
+	private static function normalize_raw( array $stored ): array {
+		$hash = self::raw_hash( $stored );
+		if ( null !== self::$cache && hash_equals( self::$cache_hash, $hash ) ) {
+			return self::$cache;
+		}
+
+		return self::sanitize( $stored );
+	}
+
+	/**
+	 * Build a stable request-local cache key for a raw settings document.
+	 *
+	 * @param array<string, mixed> $settings Raw settings document.
+	 */
+	private static function raw_hash( array $settings ): string {
+		$encoded = wp_json_encode( $settings );
+		return hash( 'sha256', is_string( $encoded ) ? $encoded : '' );
 	}
 
 	/**
@@ -195,6 +258,13 @@ final class Settings {
 		$settings = self::get();
 
 		return true === $settings[ self::DELETE_DATA_KEY ];
+	}
+
+	/** Return the configured analytics retention period in days. */
+	public static function analytics_retention_days(): int {
+		$settings = self::get();
+
+		return self::bounded_integer( $settings[ self::ANALYTICS_RETENTION_KEY ] ?? 365, 30, 3650, 365 );
 	}
 
 	/**
@@ -450,7 +520,7 @@ final class Settings {
 			$normalized['language'][ $key ] = self::text( $language[ $key ] ?? '', 200 );
 		}
 
-		$normalized['upsells']               = array(
+		$normalized['upsells']                       = array(
 			'enabled'              => self::boolean( $upsells['enabled'] ?? false ),
 			'mode'                 => in_array( $upsells['mode'] ?? '', array( 'upsells', 'cross_sells', 'both' ), true ) ? $upsells['mode'] : 'both',
 			'layout'               => in_array( $upsells['layout'] ?? '', array( 'style1', 'style2', 'style3', 'carousel' ), true ) ? $upsells['layout'] : 'style1',
@@ -462,7 +532,7 @@ final class Settings {
 			'display_limit'        => self::bounded_integer( $upsells['display_limit'] ?? 3, 1, 12, 3 ),
 			'always_show_defaults' => self::boolean( $upsells['always_show_defaults'] ?? false ),
 		);
-		$normalized['rewards']               = array(
+		$normalized['rewards']                       = array(
 			'enabled'            => self::boolean( $rewards['enabled'] ?? false ),
 			'calculation_mode'   => in_array( $rewards['calculation_mode'] ?? '', array( 'subtotal', 'total' ), true ) ? $rewards['calculation_mode'] : 'subtotal',
 			'progress_design'    => in_array( $rewards['progress_design'] ?? '', array( 'bar', 'steps', 'compact' ), true ) ? $rewards['progress_design'] : 'bar',
@@ -470,7 +540,7 @@ final class Settings {
 			'allow_gift_removal' => self::boolean( $rewards['allow_gift_removal'] ?? false ),
 			'milestones'         => self::reward_milestones( $rewards['milestones'] ?? array() ),
 		);
-		$normalized['special_addon']         = array(
+		$normalized['special_addon']                 = array(
 			'enabled'           => self::boolean( $addon['enabled'] ?? false ),
 			'product_id'        => self::positive_integer( $addon['product_id'] ?? 0 ),
 			'preselected'       => self::boolean( $addon['preselected'] ?? false ),
@@ -487,7 +557,13 @@ final class Settings {
 			'heading_color'     => self::color( $addon['heading_color'] ?? null, $defaults['special_addon']['heading_color'] ),
 			'description_color' => self::color( $addon['description_color'] ?? null, $defaults['special_addon']['description_color'] ),
 		);
-		$normalized[ self::DELETE_DATA_KEY ] = self::boolean( $settings[ self::DELETE_DATA_KEY ] ?? false );
+		$normalized[ self::ANALYTICS_RETENTION_KEY ] = self::bounded_integer(
+			$settings[ self::ANALYTICS_RETENTION_KEY ] ?? $defaults[ self::ANALYTICS_RETENTION_KEY ],
+			30,
+			3650,
+			365
+		);
+		$normalized[ self::DELETE_DATA_KEY ]         = self::boolean( $settings[ self::DELETE_DATA_KEY ] ?? false );
 
 		return $normalized;
 	}

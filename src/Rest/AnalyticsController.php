@@ -117,13 +117,13 @@ final class AnalyticsController {
 	}
 
 	/**
-	 * Return raw CSV response data.
+	 * Return a marker response whose body is streamed by serve_csv().
 	 *
 	 * @param WP_REST_Request $request Analytics request.
 	 */
 	public static function export( WP_REST_Request $request ): WP_REST_Response {
 		$filters  = Reports::filters( $request );
-		$response = new WP_REST_Response( CsvExporter::conversions( $filters ) );
+		$response = new WP_REST_Response( $filters );
 		$response->header( 'Content-Type', 'text/csv; charset=utf-8' );
 		$response->header( 'Content-Disposition', 'attachment; filename="starfiniti-cart-analytics.csv"' );
 		$response->header( 'X-Starfiniti-Cart-CSV', '1' );
@@ -140,13 +140,17 @@ final class AnalyticsController {
 	 * @param WP_REST_Server   $server REST server.
 	 */
 	public static function serve_csv( bool $served, WP_REST_Response $result, WP_REST_Request $request, WP_REST_Server $server ): bool {
-		unset( $request, $server );
+		unset( $server );
 		$headers = $result->get_headers();
-		if ( '1' !== ( $headers['X-Starfiniti-Cart-CSV'] ?? '' ) ) {
+		if (
+			'/starfiniti-cart/v1/analytics/export' !== $request->get_route()
+			|| '1' !== ( $headers['X-Starfiniti-Cart-CSV'] ?? '' )
+		) {
 			return $served;
 		}
 
-		echo (string) $result->get_data(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- CSV is generated and escaped cell-by-cell.
+		$data = $result->get_data();
+		CsvExporter::output( is_array( $data ) ? $data : array() );
 		return true;
 	}
 

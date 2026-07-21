@@ -82,12 +82,12 @@ final class AdminController {
 				array(
 					'methods'             => 'GET',
 					'callback'            => array( self::class, 'get_relationships' ),
-					'permission_callback' => array( self::class, 'can_manage' ),
+					'permission_callback' => array( self::class, 'can_manage_relationships' ),
 				),
 				array(
 					'methods'             => 'PUT',
 					'callback'            => array( self::class, 'update_relationships' ),
-					'permission_callback' => array( self::class, 'can_manage' ),
+					'permission_callback' => array( self::class, 'can_manage_relationships' ),
 				),
 			)
 		);
@@ -98,6 +98,17 @@ final class AdminController {
 	 */
 	public static function can_manage(): bool {
 		return current_user_can( AdminPage::CAPABILITY );
+	}
+
+	/**
+	 * Require WooCommerce management and object-level product edit permission.
+	 *
+	 * @param WP_REST_Request $request Current REST request.
+	 */
+	public static function can_manage_relationships( WP_REST_Request $request ): bool {
+		$product_id = absint( $request->get_param( 'id' ) );
+
+		return self::can_manage() && $product_id > 0 && current_user_can( 'edit_post', $product_id );
 	}
 
 	/**

@@ -19,7 +19,7 @@ final class Installer {
 	/**
 	 * Current plugin-owned schema version.
 	 */
-	public const CURRENT_SCHEMA_VERSION = '11';
+	public const CURRENT_SCHEMA_VERSION = '12';
 
 	/**
 	 * Stored code version option.
@@ -37,6 +37,17 @@ final class Installer {
 	public static function install_or_upgrade(): void {
 		$installed_schema = get_option( self::SCHEMA_VERSION_OPTION, '0' );
 		$installed_schema = is_scalar( $installed_schema ) ? (string) $installed_schema : '0';
+		$installed_plugin = get_option( self::PLUGIN_VERSION_OPTION, '' );
+		$installed_plugin = is_scalar( $installed_plugin ) ? (string) $installed_plugin : '';
+		$stored_settings  = get_option( Settings::OPTION_NAME, false );
+
+		if (
+			self::CURRENT_SCHEMA_VERSION === $installed_schema
+			&& SFCART_VERSION === $installed_plugin
+			&& is_array( $stored_settings )
+		) {
+			return;
+		}
 
 		if ( ! preg_match( '/^\d+(?:\.\d+)*$/', $installed_schema ) ) {
 			$installed_schema = '0';
@@ -86,8 +97,14 @@ final class Installer {
 			self::migrate_to_11();
 		}
 
+		if ( version_compare( $installed_schema, '12', '<' ) ) {
+			self::migrate_to_12();
+		}
+
 		Settings::ensure_defaults();
-		update_option( self::PLUGIN_VERSION_OPTION, SFCART_VERSION, false );
+		if ( SFCART_VERSION !== $installed_plugin ) {
+			update_option( self::PLUGIN_VERSION_OPTION, SFCART_VERSION, false );
+		}
 	}
 
 	/**
@@ -268,6 +285,20 @@ final class Installer {
 
 		/** This action is documented in migrate_to_1(). */
 		do_action( 'sfcart_migration_completed', '11' );
+	}
+
+	/** Add bounded analytics retention and WordPress privacy integration defaults. */
+	private static function migrate_to_12(): void {
+		Settings::ensure_defaults();
+		update_option( self::SCHEMA_VERSION_OPTION, '12', false );
+
+		Logger::info(
+			'Starfiniti Cart migration completed.',
+			array( 'schema_version' => '12' )
+		);
+
+		/** This action is documented in migrate_to_1(). */
+		do_action( 'sfcart_migration_completed', '12' );
 	}
 
 	/**

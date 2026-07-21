@@ -46,14 +46,17 @@ final class Logger {
 	 * @param Throwable $error   Caught error.
 	 */
 	public static function exception( string $message, Throwable $error ): void {
+		$fingerprint = hash(
+			'sha256',
+			get_class( $error ) . '|' . $error->getFile() . '|' . $error->getLine() . '|' . $error->getMessage()
+		);
 		self::error(
 			$message,
 			array(
-				'exception_class' => get_class( $error ),
-				'exception_code'  => $error->getCode(),
-				'exception_file'  => $error->getFile(),
-				'exception_line'  => $error->getLine(),
-				'exception_text'  => $error->getMessage(),
+				'exception_class'       => get_class( $error ),
+				'exception_code'        => $error->getCode(),
+				'exception_location'    => basename( $error->getFile() ) . ':' . $error->getLine(),
+				'exception_fingerprint' => substr( $fingerprint, 0, 16 ),
 			)
 		);
 	}

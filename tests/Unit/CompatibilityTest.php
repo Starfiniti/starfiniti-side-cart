@@ -40,6 +40,15 @@ final class CompatibilityTest extends TestCase {
 		self::assertNotContains( array( 'litespeed_purge_all', array() ), $GLOBALS['sfcart_test_actions'] );
 	}
 
+	/** Cache bypass applies only to exact owned dynamic routes. */
+	public function test_cache_bypass_rejects_unrelated_uri_substrings(): void {
+		self::assertTrue( CompatibilityManager::is_dynamic_uri( '/?wc-ajax=sfcart_state' ) );
+		self::assertTrue( CompatibilityManager::is_dynamic_uri( '/wp-json/starfiniti-cart/v1/settings' ) );
+		self::assertTrue( CompatibilityManager::is_dynamic_uri( '/?rest_route=%2Fstarfiniti-cart%2Fv1%2Fanalytics%2Foverview' ) );
+		self::assertFalse( CompatibilityManager::is_dynamic_uri( '/shop/?anything=sfcart_state' ) );
+		self::assertFalse( CompatibilityManager::is_dynamic_uri( '/?wc-ajax=sfcart_unknown' ) );
+	}
+
 	/** Currency adapters convert stored thresholds, never already-converted cart totals. */
 	public function test_currency_adapter_is_registered_only_for_thresholds(): void {
 		CompatibilityManager::register();

@@ -12,6 +12,19 @@ namespace Starfiniti\Cart\Compatibility;
  */
 final class CompatibilityManager {
 
+	/** Dynamic WooCommerce AJAX actions that must never be page-cached. */
+	private const CART_AJAX_ACTIONS = array(
+		'sfcart_state',
+		'sfcart_update_item',
+		'sfcart_remove_item',
+		'sfcart_apply_coupon',
+		'sfcart_remove_coupon',
+		'sfcart_add_recommendation',
+		'sfcart_track_recommendations',
+		'sfcart_track_event',
+		'sfcart_set_special_addon',
+	);
+
 	/** LiteSpeed tag applied only to cached pages containing the drawer. */
 	public const LITESPEED_CACHE_TAG = 'sfcart';
 
@@ -100,7 +113,44 @@ final class CompatibilityManager {
 	private static function is_cart_endpoint(): bool {
 		$request_uri = isset( $_SERVER['REQUEST_URI'] ) ? sanitize_text_field( wp_unslash( (string) $_SERVER['REQUEST_URI'] ) ) : '';
 
-		return str_contains( $request_uri, '/starfiniti-cart/v1/' ) || str_contains( $request_uri, 'sfcart_' );
+		return self::is_dynamic_uri( $request_uri );
+	}
+
+	/**
+	 * Match only plugin-owned REST and WooCommerce AJAX routes.
+	 *
+	 * @param string $request_uri Request URI to inspect.
+	 *
+	 * @internal Public for isolated security regression tests.
+	 */
+	public static function is_dynamic_uri( string $request_uri ): bool {
+		$parts = wp_parse_url( $request_uri );
+		if ( ! is_array( $parts ) ) {
+			return false;
+		}
+
+		$path = isset( $parts['path'] ) && is_string( $parts['path'] ) ? rawurldecode( $parts['path'] ) : '';
+		if ( 1 === preg_match( '#/(?:index\.php/)?wp-json/starfiniti-cart/v1(?:/|$)#', $path ) ) {
+			return true;
+		}
+
+		$query = array();
+		if ( isset( $parts['query'] ) && is_string( $parts['query'] ) ) {
+			parse_str( $parts['query'], $query );
+		}
+
+		$rest_route = isset( $query['rest_route'] ) && is_string( $query['rest_route'] )
+			? '/' . ltrim( sanitize_text_field( wp_unslash( $query['rest_route'] ) ), '/' )
+			: '';
+		if ( str_starts_with( $rest_route, '/starfiniti-cart/v1/' ) || '/starfiniti-cart/v1' === $rest_route ) {
+			return true;
+		}
+
+		$ajax_action = isset( $query['wc-ajax'] ) && is_string( $query['wc-ajax'] )
+			? sanitize_key( wp_unslash( $query['wc-ajax'] ) )
+			: '';
+
+		return in_array( $ajax_action, self::CART_AJAX_ACTIONS, true );
 	}
 
 	/** Prevent construction. */

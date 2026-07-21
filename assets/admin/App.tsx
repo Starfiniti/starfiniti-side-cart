@@ -1649,6 +1649,33 @@ export function App( { config }: Props ) {
 												'starfiniti-cart'
 											) }
 										</h3>
+										<TextControl
+											__nextHasNoMarginBottom
+											type="number"
+											label={ __(
+												'Analytics retention (days)',
+												'starfiniti-cart'
+											) }
+											help={ __(
+												'Events older than this are removed daily. Allowed range: 30–3650 days.',
+												'starfiniti-cart'
+											) }
+											min={ 30 }
+											max={ 3650 }
+											value={
+												settings.analytics_retention_days
+											}
+											onChange={ ( value ) =>
+												setSettings( {
+													...settings,
+													analytics_retention_days:
+														Number.parseInt(
+															value,
+															10
+														) || 365,
+												} )
+											}
+										/>
 										<ToggleControl
 											__nextHasNoMarginBottom
 											label={ __(

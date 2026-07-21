@@ -40,6 +40,9 @@ final class FunnelKitMigrator {
 	/** Starfiniti state option. */
 	public const STATE_OPTION = 'sfcart_funnelkit_migration_state';
 
+	/** Atomic request lock option. */
+	public const LOCK_OPTION = 'sfcart_funnelkit_migration_lock';
+
 	/**
 	 * Return migration status without changing data.
 	 *
@@ -90,6 +93,30 @@ final class FunnelKitMigrator {
 	 * @return array<string, mixed>
 	 */
 	public static function run(): array {
+		$token = self::acquire_lock();
+		if ( '' === $token ) {
+			return array(
+				'preview' => self::preview(),
+				'result'  => array(
+					'status'  => 'locked',
+					'message' => __( 'Another migration request is already running. Wait a moment and try again.', 'starfiniti-cart' ),
+				),
+			);
+		}
+
+		try {
+			return self::run_locked();
+		} finally {
+			self::release_lock( $token );
+		}
+	}
+
+	/**
+	 * Run one confirmed migration batch while holding the atomic lock.
+	 *
+	 * @return array<string, mixed>
+	 */
+	private static function run_locked(): array {
 		$preview  = self::preview();
 		$previous = get_option( self::STATE_OPTION, array() );
 		$previous = is_array( $previous ) ? $previous : array();
@@ -171,7 +198,7 @@ final class FunnelKitMigrator {
 				'completed_at' => self::now(),
 				'status'       => 'failed',
 				'source_hash'  => $preview['source_hash'],
-				'message'      => $error->getMessage(),
+				'message'      => __( 'The migration could not be completed. Check the WooCommerce logs for technical details.', 'starfiniti-cart' ),
 			);
 			self::append_audit( $entry );
 			self::update_state( 'failed', $started, (string) $preview['source_hash'], $steps, $progress );
@@ -180,6 +207,48 @@ final class FunnelKitMigrator {
 				'preview' => $preview,
 				'result'  => $entry,
 			);
+		}
+	}
+
+	/** Acquire a short-lived option lock and return its owner token. */
+	private static function acquire_lock(): string {
+		$token = wp_generate_uuid4();
+		$lock  = array(
+			'token'      => $token,
+			'expires_at' => time() + 300,
+		);
+		if ( self::create_lock( $lock ) ) {
+			return $token;
+		}
+
+		$existing = get_option( self::LOCK_OPTION, array() );
+		if ( ! is_array( $existing ) || absint( $existing['expires_at'] ?? 0 ) >= time() ) {
+			return '';
+		}
+
+		delete_option( self::LOCK_OPTION );
+		return self::create_lock( $lock ) ? $token : '';
+	}
+
+	/**
+	 * Attempt one atomic option insert.
+	 *
+	 * @param array{token: string, expires_at: int} $lock Lock document.
+	 * @phpstan-impure
+	 */
+	private static function create_lock( array $lock ): bool {
+		return add_option( self::LOCK_OPTION, $lock, '', false );
+	}
+
+	/**
+	 * Release a lock only when this request still owns it.
+	 *
+	 * @param string $token Lock owner token.
+	 */
+	private static function release_lock( string $token ): void {
+		$existing = get_option( self::LOCK_OPTION, array() );
+		if ( is_array( $existing ) && hash_equals( (string) ( $existing['token'] ?? '' ), $token ) ) {
+			delete_option( self::LOCK_OPTION );
 		}
 	}
 

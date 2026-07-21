@@ -138,6 +138,7 @@ export type Settings = {
 	upsells: UpsellSettings;
 	rewards: RewardSettings;
 	special_addon: SpecialAddonSettings;
+	analytics_retention_days: number;
 	delete_data_on_uninstall: boolean;
 };
 
