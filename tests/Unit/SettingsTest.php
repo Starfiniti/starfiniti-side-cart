@@ -357,7 +357,7 @@ final class SettingsTest extends TestCase {
 		self::assertArrayHasKey( 'special_addon.background', $errors );
 	}
 
-	/** WCAG AA color pairs are enforced, including translucent backgrounds. */
+	/** WCAG AA text pairs are enforced while accent controls adapt automatically. */
 	public function test_low_contrast_colors_are_rejected(): void {
 		$settings = Settings::defaults();
 		self::assertSame( array(), Settings::validation_errors( $settings ) );
@@ -370,10 +370,17 @@ final class SettingsTest extends TestCase {
 
 		$errors = Settings::validation_errors( $settings );
 
-		self::assertArrayHasKey( 'design.accent_hover', $errors );
+		self::assertArrayNotHasKey( 'design.accent_hover', $errors );
 		self::assertArrayHasKey( 'design.muted', $errors );
 		self::assertArrayHasKey( 'design.shortcode_icon_color', $errors );
 		self::assertArrayHasKey( 'special_addon.description_color', $errors );
+	}
+
+	/** Primary controls automatically choose the stronger black/white contrast. */
+	public function test_readable_accent_text_color_is_selected(): void {
+		self::assertSame( '#ffffff', Settings::readable_text_color( '#1d4ed8' ) );
+		self::assertSame( '#000000', Settings::readable_text_color( '#f3658f' ) );
+		self::assertSame( '#000000', Settings::readable_text_color( '#ffffff00', '#ffffff' ) );
 	}
 
 	/** Badge colors remain customizable and never prevent saving. */

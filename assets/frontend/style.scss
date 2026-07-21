@@ -1,6 +1,8 @@
 :root {
 	--sfcart-accent: #1d4ed8;
 	--sfcart-accent-hover: #1e40af;
+	--sfcart-accent-hover-text: #fff;
+	--sfcart-accent-text: #fff;
 	--sfcart-background: #fff;
 	--sfcart-border: #e5e7eb;
 	--sfcart-danger: #b91c1c;
@@ -1062,7 +1064,7 @@ input:focus-visible + .sfcart-special-addon__switch {
 .sfcart-checkout-button {
 	background: var(--sfcart-accent);
 	border: 1px solid var(--sfcart-accent);
-	color: #fff;
+	color: var(--sfcart-accent-text);
 	font-size: 14.5px;
 	font-weight: 700;
 	line-height: 1.2;
@@ -1074,7 +1076,7 @@ input:focus-visible + .sfcart-special-addon__switch {
 	&:hover {
 		background: var(--sfcart-accent-hover);
 		border-color: var(--sfcart-accent-hover);
-		color: #fff;
+		color: var(--sfcart-accent-hover-text);
 	}
 }
 
@@ -1360,7 +1362,7 @@ body .sfcart-toggle {
 .sfcart-root .sfcart-checkout-button {
 	background: var(--sfcart-accent) !important;
 	border: 1px solid var(--sfcart-accent) !important;
-	color: #fff !important;
+	color: var(--sfcart-accent-text) !important;
 	font-size: 14.5px !important;
 	font-weight: 700 !important;
 	line-height: 1.2 !important;
@@ -1371,7 +1373,7 @@ body .sfcart-toggle {
 .sfcart-root .sfcart-checkout-button:hover {
 	background: var(--sfcart-accent-hover) !important;
 	border-color: var(--sfcart-accent-hover) !important;
-	color: #fff !important;
+	color: var(--sfcart-accent-hover-text) !important;
 }
 
 .sfcart-root .sfcart-cart-link {
