@@ -1,6 +1,6 @@
 import { __ } from '@wordpress/i18n';
 
-import type { LanguageSettings, Settings } from './types';
+import type { CartSettings, LanguageSettings, Settings } from './types';
 
 export type ValidationSection =
 	| 'cart'
@@ -16,6 +16,32 @@ export type ValidationIssue = {
 	message: string;
 	section: ValidationSection;
 };
+
+export type CartTotalsVisibility = {
+	subtotal: boolean;
+	shipping: boolean;
+	tax: boolean;
+	total: boolean;
+};
+
+export function cartTotalsVisibility(
+	cart: CartSettings
+): CartTotalsVisibility {
+	if ( cart.totals_display === 'subtotal' ) {
+		return { subtotal: true, shipping: false, tax: false, total: false };
+	}
+
+	if ( cart.totals_display === 'custom' ) {
+		return {
+			subtotal: cart.show_subtotal,
+			shipping: cart.show_shipping,
+			tax: cart.show_tax,
+			total: cart.show_total,
+		};
+	}
+
+	return { subtotal: true, shipping: true, tax: true, total: true };
+}
 
 export function languageValue(
 	language: LanguageSettings,
@@ -127,6 +153,7 @@ export function readableTextColor(
 const fieldLabels: Record< string, string > = {
 	'cart.position': __( 'Drawer position', 'starfiniti-cart' ),
 	'cart.width': __( 'Drawer width', 'starfiniti-cart' ),
+	'cart.totals_display': __( 'Cart totals display', 'starfiniti-cart' ),
 	'upsells.layout': __( 'Recommendation layout', 'starfiniti-cart' ),
 	'upsells.placement': __( 'Recommendation position', 'starfiniti-cart' ),
 	'upsells.mode': __( 'Recommendation source', 'starfiniti-cart' ),

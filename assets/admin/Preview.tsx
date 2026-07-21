@@ -4,7 +4,11 @@ import type { CSSProperties } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 import { CartIcon } from './CartIcon';
-import { languageValue, readableTextColor } from './settings';
+import {
+	cartTotalsVisibility,
+	languageValue,
+	readableTextColor,
+} from './settings';
 import type { ProductSummary, Settings } from './types';
 import { buildRewardPreviewState } from './reward-preview';
 import { recommendationDisplayLimit } from '../recommendations';
@@ -158,6 +162,7 @@ export function Preview( {
 		0
 	);
 	const tax = subtotal - subtotal / 1.22;
+	const totalsVisibility = cartTotalsVisibility( settings.cart );
 	const rewardPreview = buildRewardPreviewState(
 		settings.rewards,
 		subtotal,
@@ -595,11 +600,15 @@ export function Preview( {
 									</button>
 								</div>
 							) }
-							<div className="sfcart-preview-summary">
-								<span>{ __( 'Subtotal', 'woocommerce' ) }</span>
-								<b>{ money( subtotal ) }</b>
-							</div>
-							{ settings.cart.show_shipping && (
+							{ totalsVisibility.subtotal && (
+								<div className="sfcart-preview-summary">
+									<span>
+										{ __( 'Subtotal', 'woocommerce' ) }
+									</span>
+									<b>{ money( subtotal ) }</b>
+								</div>
+							) }
+							{ totalsVisibility.shipping && (
 								<div className="sfcart-preview-summary">
 									<span>
 										{ __( 'Shipping', 'woocommerce' ) }
@@ -609,7 +618,7 @@ export function Preview( {
 									</b>
 								</div>
 							) }
-							{ settings.cart.show_tax && (
+							{ totalsVisibility.tax && (
 								<div className="sfcart-preview-summary">
 									<span>
 										{ __(
@@ -620,12 +629,14 @@ export function Preview( {
 									<b>{ money( tax ) }</b>
 								</div>
 							) }
-							<div className="sfcart-preview-total">
-								<strong>
-									{ __( 'Total', 'woocommerce' ) }
-								</strong>
-								<strong>{ money( subtotal ) }</strong>
-							</div>
+							{ totalsVisibility.total && (
+								<div className="sfcart-preview-total">
+									<strong>
+										{ __( 'Total', 'woocommerce' ) }
+									</strong>
+									<strong>{ money( subtotal ) }</strong>
+								</div>
+							) }
 							<a
 								href="#sfcart-preview"
 								onClick={ ( event ) => event.preventDefault() }

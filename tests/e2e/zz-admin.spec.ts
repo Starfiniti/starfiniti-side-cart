@@ -76,6 +76,7 @@ test( 'owned administration saves, reloads, previews, searches, and updates the 
 		.fill( '512' );
 	await page.getByLabel( 'Open automatically after add to cart' ).uncheck();
 	await page.getByLabel( 'Allow coupons in the drawer' ).uncheck();
+	await page.getByLabel( 'Cart totals display' ).selectOption( 'subtotal' );
 	await page.getByLabel( 'Show Continue shopping link' ).check();
 	await page.getByLabel( 'Show View cart link' ).check();
 	await page.getByLabel( 'View cart label' ).fill( '' );
@@ -92,6 +93,10 @@ test( 'owned administration saves, reloads, previews, searches, and updates the 
 	).toBeVisible();
 	await expect( preview ).toContainText( '512 px' );
 	await expect( preview ).toContainText( 'Finish order' );
+	await expect( preview.locator( '.sfcart-preview-summary' ) ).toHaveCount(
+		1
+	);
+	await expect( preview.locator( '.sfcart-preview-total' ) ).toHaveCount( 0 );
 	await expect(
 		preview.getByRole( 'button', { name: 'View cart', exact: true } )
 	).toBeVisible();
@@ -259,6 +264,12 @@ test( 'owned administration saves, reloads, previews, searches, and updates the 
 	await expect( dialog ).toBeVisible();
 	await expect( dialog.getByText( 'Finish order' ) ).toBeVisible();
 	await expect( dialog.locator( '[data-sfcart-coupon-form]' ) ).toBeHidden();
+	await expect(
+		dialog.locator( '[data-sfcart-subtotal-row]' )
+	).toBeVisible();
+	await expect( dialog.locator( '[data-sfcart-shipping-row]' ) ).toBeHidden();
+	await expect( dialog.locator( '[data-sfcart-tax-row]' ) ).toBeHidden();
+	await expect( dialog.locator( '[data-sfcart-total-row]' ) ).toBeHidden();
 	await expect( dialog.locator( '[data-sfcart-cart-link]' ) ).toBeVisible();
 	await expect(
 		dialog.locator( '[data-sfcart-continue-shopping]' )

@@ -41,6 +41,51 @@ final class SettingsTest extends TestCase {
 		self::assertSame( 3650, Settings::sanitize( array( Settings::ANALYTICS_RETENTION_KEY => 9999 ) )[ Settings::ANALYTICS_RETENTION_KEY ] );
 	}
 
+	/** Cart-total modes resolve predictably and preserve legacy visibility. */
+	public function test_cart_totals_display_modes_are_backward_compatible(): void {
+		$defaults = Settings::sanitize( array() );
+		self::assertSame( 'full', $defaults['cart']['totals_display'] );
+		self::assertSame(
+			array(
+				'subtotal' => true,
+				'shipping' => true,
+				'tax'      => true,
+				'total'    => true,
+			),
+			Settings::cart_totals_visibility( $defaults['cart'] )
+		);
+
+		$subtotal = Settings::sanitize( array( 'cart' => array( 'totals_display' => 'subtotal' ) ) );
+		self::assertSame(
+			array(
+				'subtotal' => true,
+				'shipping' => false,
+				'tax'      => false,
+				'total'    => false,
+			),
+			Settings::cart_totals_visibility( $subtotal['cart'] )
+		);
+
+		$legacy = Settings::sanitize(
+			array(
+				'cart' => array(
+					'show_shipping' => false,
+					'show_tax'      => true,
+				),
+			)
+		);
+		self::assertSame( 'custom', $legacy['cart']['totals_display'] );
+		self::assertSame(
+			array(
+				'subtotal' => true,
+				'shipping' => false,
+				'tax'      => true,
+				'total'    => true,
+			),
+			Settings::cart_totals_visibility( $legacy['cart'] )
+		);
+	}
+
 	/** Page cache is purged only when the effective settings document changes. */
 	public function test_settings_update_emits_change_action_only_for_changes(): void {
 		$settings = Settings::defaults();
@@ -431,6 +476,6 @@ final class SettingsTest extends TestCase {
 			static fn ( array $action ): bool => 'sfcart_migration_completed' === $action[0]
 		);
 
-		self::assertCount( 12, $migrations );
+		self::assertCount( 13, $migrations );
 	}
 }

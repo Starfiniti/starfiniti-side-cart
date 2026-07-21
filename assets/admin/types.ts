@@ -5,8 +5,11 @@ export type CartSettings = {
 	floating_button: boolean;
 	header_cart: boolean;
 	coupons: boolean;
+	totals_display: 'full' | 'subtotal' | 'custom';
+	show_subtotal: boolean;
 	show_shipping: boolean;
 	show_tax: boolean;
+	show_total: boolean;
 	show_cart_link: boolean;
 	show_continue_shopping: boolean;
 };

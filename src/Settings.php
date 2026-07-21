@@ -34,7 +34,7 @@ final class Settings {
 	/**
 	 * Current settings document version.
 	 */
-	public const SCHEMA_VERSION = 12;
+	public const SCHEMA_VERSION = 13;
 
 	/**
 	 * Delete-data setting key. Kept at the document root for uninstall safety.
@@ -63,8 +63,11 @@ final class Settings {
 				'floating_button'        => true,
 				'header_cart'            => true,
 				'coupons'                => true,
+				'totals_display'         => 'full',
+				'show_subtotal'          => true,
 				'show_shipping'          => true,
 				'show_tax'               => true,
+				'show_total'             => true,
 				'show_cart_link'         => true,
 				'show_continue_shopping' => true,
 			),
@@ -268,6 +271,43 @@ final class Settings {
 	}
 
 	/**
+	 * Resolve which cart-total rows should be visible.
+	 *
+	 * @param array<string, mixed> $cart Normalized or candidate cart settings.
+	 * @return array{subtotal: bool, shipping: bool, tax: bool, total: bool}
+	 */
+	public static function cart_totals_visibility( array $cart ): array {
+		$mode = in_array( $cart['totals_display'] ?? '', array( 'full', 'subtotal', 'custom' ), true )
+			? $cart['totals_display']
+			: 'full';
+
+		if ( 'subtotal' === $mode ) {
+			return array(
+				'subtotal' => true,
+				'shipping' => false,
+				'tax'      => false,
+				'total'    => false,
+			);
+		}
+
+		if ( 'custom' === $mode ) {
+			return array(
+				'subtotal' => self::boolean( $cart['show_subtotal'] ?? true ),
+				'shipping' => self::boolean( $cart['show_shipping'] ?? true ),
+				'tax'      => self::boolean( $cart['show_tax'] ?? true ),
+				'total'    => self::boolean( $cart['show_total'] ?? true ),
+			);
+		}
+
+		return array(
+			'subtotal' => true,
+			'shipping' => true,
+			'tax'      => true,
+			'total'    => true,
+		);
+	}
+
+	/**
 	 * Return a language override or the translated runtime fallback.
 	 *
 	 * @param string $key      Language setting key.
@@ -298,6 +338,10 @@ final class Settings {
 
 		if ( isset( $cart['width'] ) && ( ! is_numeric( $cart['width'] ) || (int) $cart['width'] < 320 || (int) $cart['width'] > 640 ) ) {
 			$errors['cart.width'] = __( 'Cart width must be between 320 and 640 pixels.', 'starfiniti-cart' );
+		}
+
+		if ( isset( $cart['totals_display'] ) && ! in_array( $cart['totals_display'], array( 'full', 'subtotal', 'custom' ), true ) ) {
+			$errors['cart.totals_display'] = __( 'Choose full breakdown, subtotal only, or custom totals.', 'starfiniti-cart' );
 		}
 
 		foreach ( array( 'accent', 'accent_hover', 'background', 'text', 'muted', 'border', 'success', 'danger', 'floating_background', 'floating_hover', 'floating_icon_color', 'floating_badge_background', 'floating_badge_color', 'shortcode_background', 'shortcode_hover', 'shortcode_icon_color', 'shortcode_border', 'shortcode_badge_background', 'shortcode_badge_color' ) as $color_key ) {
@@ -460,6 +504,11 @@ final class Settings {
 		$shortcode_icon    = in_array( $design['shortcode_icon'] ?? '', $icons, true ) ? $design['shortcode_icon'] : $legacy_icon;
 		$floating_icon_id  = self::positive_integer( $design['floating_icon_id'] ?? $legacy_icon_id );
 		$shortcode_icon_id = self::positive_integer( $design['shortcode_icon_id'] ?? $legacy_icon_id );
+		$legacy_shipping   = self::boolean( $cart['show_shipping'] ?? $defaults['cart']['show_shipping'] );
+		$legacy_tax        = self::boolean( $cart['show_tax'] ?? $defaults['cart']['show_tax'] );
+		$totals_display    = in_array( $cart['totals_display'] ?? '', array( 'full', 'subtotal', 'custom' ), true )
+			? $cart['totals_display']
+			: ( $legacy_shipping && $legacy_tax ? 'full' : 'custom' );
 
 		$normalized           = $defaults;
 		$normalized['cart']   = array(
@@ -469,8 +518,11 @@ final class Settings {
 			'floating_button'        => self::boolean( $cart['floating_button'] ?? $defaults['cart']['floating_button'] ),
 			'header_cart'            => self::boolean( $cart['header_cart'] ?? $defaults['cart']['header_cart'] ),
 			'coupons'                => self::boolean( $cart['coupons'] ?? $defaults['cart']['coupons'] ),
-			'show_shipping'          => self::boolean( $cart['show_shipping'] ?? $defaults['cart']['show_shipping'] ),
-			'show_tax'               => self::boolean( $cart['show_tax'] ?? $defaults['cart']['show_tax'] ),
+			'totals_display'         => $totals_display,
+			'show_subtotal'          => self::boolean( $cart['show_subtotal'] ?? $defaults['cart']['show_subtotal'] ),
+			'show_shipping'          => $legacy_shipping,
+			'show_tax'               => $legacy_tax,
+			'show_total'             => self::boolean( $cart['show_total'] ?? $defaults['cart']['show_total'] ),
 			'show_cart_link'         => self::boolean( $cart['show_cart_link'] ?? $defaults['cart']['show_cart_link'] ),
 			'show_continue_shopping' => self::boolean( $cart['show_continue_shopping'] ?? $defaults['cart']['show_continue_shopping'] ),
 		);

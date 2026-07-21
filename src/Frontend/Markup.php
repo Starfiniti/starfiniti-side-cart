@@ -86,6 +86,8 @@ final class Markup {
 		$upsell_placement = (string) ( $settings['upsells']['placement'] ?? 'after_items' );
 		$view_cart_label  = self::language( $settings, 'view_cart', __( 'View cart', 'starfiniti-cart' ) );
 		$calculation_note = trim( (string) ( $settings['language']['calculation_note'] ?? '' ) );
+		$totals           = Settings::cart_totals_visibility( $settings['cart'] );
+		$totals_hidden    = ! in_array( true, $totals, true );
 		ob_start();
 		?>
 		<div class="sfcart-root sfcart-root--<?php echo esc_attr( $position ); ?>" id="sfcart-drawer" data-sfcart-root style="<?php echo esc_attr( $style ); ?>" hidden>
@@ -147,20 +149,20 @@ final class Markup {
 					</form>
 
 					<div class="sfcart-coupons" data-sfcart-coupons></div>
-					<dl class="sfcart-totals">
-						<div class="sfcart-total-row">
+					<dl class="sfcart-totals" data-sfcart-totals <?php echo $totals_hidden ? 'hidden' : ''; ?>>
+						<div class="sfcart-total-row" data-sfcart-subtotal-row <?php echo $totals['subtotal'] ? '' : 'hidden'; ?>>
 							<dt><?php esc_html_e( 'Subtotal', 'woocommerce' ); ?></dt>
 							<dd data-sfcart-subtotal></dd>
 						</div>
-						<div class="sfcart-total-row" data-sfcart-shipping-row hidden>
+						<div class="sfcart-total-row" data-sfcart-shipping-row <?php echo $totals['shipping'] ? '' : 'hidden'; ?>>
 							<dt><?php esc_html_e( 'Shipping', 'woocommerce' ); ?></dt>
 							<dd data-sfcart-shipping></dd>
 						</div>
-						<div class="sfcart-total-row" data-sfcart-tax-row hidden>
+						<div class="sfcart-total-row" data-sfcart-tax-row <?php echo $totals['tax'] ? '' : 'hidden'; ?>>
 							<dt><?php esc_html_e( 'Tax', 'woocommerce' ); ?></dt>
 							<dd data-sfcart-tax></dd>
 						</div>
-						<div class="sfcart-total-row sfcart-total-row--grand">
+						<div class="sfcart-total-row sfcart-total-row--grand" data-sfcart-total-row <?php echo $totals['total'] ? '' : 'hidden'; ?>>
 							<dt><?php esc_html_e( 'Total', 'woocommerce' ); ?></dt>
 							<dd data-sfcart-total></dd>
 						</div>
