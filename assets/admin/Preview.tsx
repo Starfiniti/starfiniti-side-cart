@@ -4,7 +4,7 @@ import type { CSSProperties } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 import { CartIcon } from './CartIcon';
-import { languageValue } from './settings';
+import { languageValue, readableTextColor } from './settings';
 import type { ProductSummary, Settings } from './types';
 import { buildRewardPreviewState } from './reward-preview';
 import { recommendationDisplayLimit } from '../recommendations';
@@ -171,6 +171,10 @@ export function Preview( {
 
 	const style = {
 		'--sfcart-preview-accent': settings.design.accent,
+		'--sfcart-preview-accent-text': readableTextColor(
+			settings.design.accent,
+			settings.design.background
+		),
 		'--sfcart-preview-floating-background':
 			settings.design.floating_background,
 		'--sfcart-preview-floating-icon': settings.design.floating_icon_color,

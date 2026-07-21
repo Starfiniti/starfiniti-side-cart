@@ -1,6 +1,7 @@
 import {
 	isHexColor,
 	languageValue,
+	readableTextColor,
 	toggleIdentifier,
 } from '../../assets/admin/settings';
 import type { LanguageSettings } from '../../assets/admin/types';
@@ -43,6 +44,12 @@ describe( 'administration settings helpers', () => {
 		expect( isHexColor( '#1d4ed800' ) ).toBe( true );
 		expect( isHexColor( '#fff' ) ).toBe( false );
 		expect( isHexColor( 'red' ) ).toBe( false );
+	} );
+
+	it( 'selects readable primary-button text for custom accent colors', () => {
+		expect( readableTextColor( '#1d4ed8' ) ).toBe( '#ffffff' );
+		expect( readableTextColor( '#f3658f' ) ).toBe( '#000000' );
+		expect( readableTextColor( '#ffffff00', '#ffffff' ) ).toBe( '#000000' );
 	} );
 
 	it( 'adds, deduplicates, limits, and removes selected identifiers', () => {

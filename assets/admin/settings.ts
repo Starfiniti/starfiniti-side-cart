@@ -114,9 +114,12 @@ export function contrastRatio(
 	return ( lighter + 0.05 ) / ( darker + 0.05 );
 }
 
-export function readableTextColor( background: string ): '#000000' | '#ffffff' {
-	return contrastRatio( '#000000', background ) >=
-		contrastRatio( '#ffffff', background )
+export function readableTextColor(
+	background: string,
+	canvas = '#ffffff'
+): '#000000' | '#ffffff' {
+	return contrastRatio( '#000000', background, canvas ) >=
+		contrastRatio( '#ffffff', background, canvas )
 		? '#000000'
 		: '#ffffff';
 }

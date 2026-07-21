@@ -264,9 +264,11 @@ final class Markup {
 		$design = $settings['design'];
 
 		return sprintf(
-			'--sfcart-accent:%1$s;--sfcart-accent-hover:%2$s;--sfcart-background:%3$s;--sfcart-text:%4$s;--sfcart-muted:%5$s;--sfcart-border:%6$s;--sfcart-success:%7$s;--sfcart-danger:%8$s;--sfcart-width:%9$dpx;--sfcart-radius:%10$dpx;--sfcart-overlay-opacity:%11$d%%;',
+			'--sfcart-accent:%1$s;--sfcart-accent-hover:%2$s;--sfcart-accent-text:%3$s;--sfcart-accent-hover-text:%4$s;--sfcart-background:%5$s;--sfcart-text:%6$s;--sfcart-muted:%7$s;--sfcart-border:%8$s;--sfcart-success:%9$s;--sfcart-danger:%10$s;--sfcart-width:%11$dpx;--sfcart-radius:%12$dpx;--sfcart-overlay-opacity:%13$d%%;',
 			$design['accent'],
 			$design['accent_hover'],
+			Settings::readable_text_color( $design['accent'], $design['background'] ),
+			Settings::readable_text_color( $design['accent_hover'], $design['background'] ),
 			$design['background'],
 			$design['text'],
 			$design['muted'],

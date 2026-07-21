@@ -307,8 +307,6 @@ final class Settings {
 		}
 
 		$design_colors = array_merge( self::defaults()['design'], $design );
-		self::validate_contrast( $errors, 'design.accent', '#ffffff', $design_colors['accent'], $design_colors['background'] );
-		self::validate_contrast( $errors, 'design.accent_hover', '#ffffff', $design_colors['accent_hover'], $design_colors['background'] );
 		self::validate_contrast( $errors, 'design.text', $design_colors['text'], $design_colors['background'] );
 		self::validate_contrast( $errors, 'design.muted', $design_colors['muted'], $design_colors['background'] );
 		self::validate_contrast( $errors, 'design.success', $design_colors['success'], $design_colors['background'] );
@@ -735,6 +733,26 @@ final class Settings {
 		if ( self::contrast_ratio( (string) $foreground, (string) $background, (string) $canvas ) < 4.5 ) {
 			$errors[ $field_path ] = __( 'Choose colors with a contrast ratio of at least 4.5:1.', 'starfiniti-cart' );
 		}
+	}
+
+	/**
+	 * Choose black or white text with the strongest contrast on a background.
+	 *
+	 * Accent colors remain fully customizable while primary controls stay
+	 * readable without blocking the complete settings document.
+	 *
+	 * @param string $background Control background color.
+	 * @param string $canvas     Base behind a translucent background.
+	 */
+	public static function readable_text_color( string $background, string $canvas = '#ffffff' ): string {
+		if ( ! self::is_hex_color( $background ) || ! self::is_hex_color( $canvas ) ) {
+			return '#ffffff';
+		}
+
+		$black = self::contrast_ratio( '#000000', $background, $canvas );
+		$white = self::contrast_ratio( '#ffffff', $background, $canvas );
+
+		return $black >= $white ? '#000000' : '#ffffff';
 	}
 
 	/**

@@ -2,6 +2,11 @@
 
 All notable changes to Starfiniti Cart for WooCommerce are documented here.
 
+## 1.4.5 - 2026-07-21
+
+- Allows merchants to save any valid accent and hover color without blocking unrelated settings.
+- Automatically chooses accessible black or white text for primary cart buttons and keeps the live preview synchronized.
+
 ## 1.4.4 - 2026-07-20
 
 - Bound public cart mutations to random WooCommerce-session request tokens in addition to WordPress nonces.
