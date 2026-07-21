@@ -51,7 +51,15 @@ test( 'analytics reconcile paid attributed orders, refunds, dashboard, and CSV',
 	}, config );
 	expect( attribution.status ).toBe( 200 );
 
-	const query = '?from=1980-01-01&to=2099-12-31';
+	const today = new Date();
+	const from = new Date( today );
+	const to = new Date( today );
+	from.setUTCDate( from.getUTCDate() - 1 );
+	to.setUTCDate( to.getUTCDate() + 1 );
+	const query = `?${ new URLSearchParams( {
+		from: from.toISOString().slice( 0, 10 ),
+		to: to.toISOString().slice( 0, 10 ),
+	} ).toString() }`;
 	const overview = await page.evaluate(
 		async ( { admin, suffix } ) => {
 			const response = await fetch(

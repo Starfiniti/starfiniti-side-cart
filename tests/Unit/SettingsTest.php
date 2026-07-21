@@ -34,6 +34,13 @@ final class SettingsTest extends TestCase {
 		self::assertFalse( Settings::sanitize( array() )[ Settings::DELETE_DATA_KEY ] );
 	}
 
+	/** Analytics retention is finite and constrained to the supported range. */
+	public function test_analytics_retention_is_bounded(): void {
+		self::assertSame( 365, Settings::sanitize( array() )[ Settings::ANALYTICS_RETENTION_KEY ] );
+		self::assertSame( 30, Settings::sanitize( array( Settings::ANALYTICS_RETENTION_KEY => 1 ) )[ Settings::ANALYTICS_RETENTION_KEY ] );
+		self::assertSame( 3650, Settings::sanitize( array( Settings::ANALYTICS_RETENTION_KEY => 9999 ) )[ Settings::ANALYTICS_RETENTION_KEY ] );
+	}
+
 	/** Page cache is purged only when the effective settings document changes. */
 	public function test_settings_update_emits_change_action_only_for_changes(): void {
 		$settings = Settings::defaults();
@@ -417,6 +424,6 @@ final class SettingsTest extends TestCase {
 			static fn ( array $action ): bool => 'sfcart_migration_completed' === $action[0]
 		);
 
-		self::assertCount( 11, $migrations );
+		self::assertCount( 12, $migrations );
 	}
 }

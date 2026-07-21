@@ -2,6 +2,15 @@
 
 All notable changes to Starfiniti Cart for WooCommerce are documented here.
 
+## 1.4.4 - 2026-07-20
+
+- Bound public cart mutations to random WooCommerce-session request tokens in addition to WordPress nonces.
+- Made public analytics rate limits atomic and isolated visitors sharing the same proxy by session.
+- Streamed and bounded analytics exports, report ranges, and retention cleanup batches.
+- Included order-linked pseudonymous cart events in WordPress privacy exports and erasure.
+- Added an atomic migration lock, generic public failure messages, and deactivation cron cleanup.
+- Reduced storefront work by caching normalized settings per request, skipping completed migrations, and removing runtime asset hashing.
+
 ## 1.4.3 - 2026-07-20
 
 - Keeps accessible badge defaults and automatic readable-color suggestions without blocking merchants from saving custom badge colors.

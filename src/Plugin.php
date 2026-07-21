@@ -12,6 +12,7 @@ use Starfiniti\Cart\AddOn\SpecialAddOn;
 use Starfiniti\Cart\Admin\AdminPage;
 use Starfiniti\Cart\Ajax\CartController;
 use Starfiniti\Cart\Analytics\Recorder;
+use Starfiniti\Cart\Analytics\Privacy;
 use Starfiniti\Cart\Blocks\CartToggleBlock;
 use Starfiniti\Cart\Compatibility\CompatibilityManager;
 use Starfiniti\Cart\Frontend\Frontend;
@@ -145,6 +146,7 @@ final class Plugin {
 			RewardEngine::register();
 			SpecialAddOn::register();
 			Recorder::register();
+			Privacy::register();
 		} catch ( Throwable $error ) {
 			$this->initialization_failed = true;
 			Logger::exception( 'Starfiniti Cart initialization failed.', $error );

@@ -52,6 +52,7 @@ final class CartState {
 			'rewards'         => RewardEngine::snapshot( $cart ),
 			'special_addon'   => SpecialAddOn::snapshot( $cart ),
 			'nonce'           => wp_create_nonce( 'sfcart_cart' ),
+			'token'           => SessionToken::current(),
 			'urls'            => array(
 				'cart'     => wc_get_cart_url(),
 				'checkout' => wc_get_checkout_url(),

@@ -13,6 +13,7 @@ if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {
 }
 
 require_once __DIR__ . '/src/Settings.php';
+require_once __DIR__ . '/src/Analytics/Tables.php';
 require_once __DIR__ . '/src/Lifecycle/Installer.php';
 require_once __DIR__ . '/src/Lifecycle/Uninstaller.php';
 

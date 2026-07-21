@@ -129,6 +129,7 @@ const fieldLabels: Record< string, string > = {
 	'upsells.mode': __( 'Recommendation source', 'starfiniti-cart' ),
 	'upsells.ordering': __( 'Product ordering', 'starfiniti-cart' ),
 	'upsells.display_limit': __( 'Display limit', 'starfiniti-cart' ),
+	analytics_retention_days: __( 'Analytics retention', 'starfiniti-cart' ),
 	'special_addon.product_id': __(
 		'Special add-on product',
 		'starfiniti-cart'
@@ -284,6 +285,13 @@ export function settingsValidationIssues(
 		32,
 		96,
 		__( 'Use a value from 32 to 96 pixels.', 'starfiniti-cart' )
+	);
+	range(
+		'analytics_retention_days',
+		settings.analytics_retention_days,
+		30,
+		3650,
+		__( 'Use a value from 30 to 3650 days.', 'starfiniti-cart' )
 	);
 
 	if (

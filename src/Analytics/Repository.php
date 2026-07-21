@@ -13,6 +13,189 @@ namespace Starfiniti\Cart\Analytics;
 final class Repository {
 
 	/**
+	 * Return bounded analytics records related to WooCommerce orders.
+	 *
+	 * @param array $order_ids   Order identifiers.
+	 * @param array $session_ids Pseudonymous session identifiers stored on those orders.
+	 * @phpstan-param list<int> $order_ids
+	 * @phpstan-param list<string> $session_ids
+	 * @return list<array<string, mixed>>
+	 */
+	public static function privacy_records( array $order_ids, array $session_ids = array() ): array {
+		global $wpdb;
+
+		$order_ids   = array_values( array_unique( array_filter( array_map( 'absint', $order_ids ) ) ) );
+		$session_ids = self::session_ids( $session_ids );
+		if ( array() === $order_ids && array() === $session_ids ) {
+			return array();
+		}
+
+		$events       = Tables::conversions();
+		$items        = Tables::items();
+		$event_filter = self::privacy_event_filter( $order_ids, $session_ids );
+		$item_filter  = self::privacy_item_filter( $order_ids, $session_ids, $events );
+		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare, WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		$event_sql  = $wpdb->prepare(
+			"SELECT id, session_id, order_id, event_date, type, status, currency, total, revenue, refunded, coupon_code FROM {$events} WHERE {$event_filter['sql']} ORDER BY id ASC",
+			$event_filter['values']
+		);
+		$item_sql   = $wpdb->prepare(
+			"SELECT id, order_id, product_id, variation_id, type, quantity, total, refunded, currency, source, source_product_id FROM {$items} WHERE {$item_filter['sql']} ORDER BY id ASC",
+			$item_filter['values']
+		);
+		$event_rows = is_string( $event_sql ) ? $wpdb->get_results( $event_sql, ARRAY_A ) : array();
+		$item_rows  = is_string( $item_sql ) ? $wpdb->get_results( $item_sql, ARRAY_A ) : array();
+		// phpcs:enable
+
+		$records = array();
+		foreach ( is_array( $event_rows ) ? $event_rows : array() as $row ) {
+			if ( is_array( $row ) ) {
+				$records[] = array_merge( array( 'kind' => 'event' ), $row );
+			}
+		}
+		foreach ( is_array( $item_rows ) ? $item_rows : array() as $row ) {
+			if ( is_array( $row ) ) {
+				$records[] = array_merge( array( 'kind' => 'item' ), $row );
+			}
+		}
+
+		return $records;
+	}
+
+	/**
+	 * Delete analytics linked to a list of WooCommerce orders.
+	 *
+	 * @param array $order_ids   Order identifiers.
+	 * @param array $session_ids Pseudonymous session identifiers stored on those orders.
+	 * @phpstan-param list<int> $order_ids
+	 * @phpstan-param list<string> $session_ids
+	 */
+	public static function delete_for_orders( array $order_ids, array $session_ids = array() ): bool {
+		global $wpdb;
+
+		$order_ids   = array_values( array_unique( array_filter( array_map( 'absint', $order_ids ) ) ) );
+		$session_ids = self::session_ids( $session_ids );
+		if ( array() === $order_ids && array() === $session_ids ) {
+			return false;
+		}
+
+		$events       = Tables::conversions();
+		$items        = Tables::items();
+		$event_filter = self::privacy_event_filter( $order_ids, $session_ids );
+		$item_filter  = self::privacy_item_filter( $order_ids, $session_ids, $events );
+		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare, WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery
+		$item_sql     = $wpdb->prepare( "DELETE FROM {$items} WHERE {$item_filter['sql']}", $item_filter['values'] );
+		$event_sql    = $wpdb->prepare( "DELETE FROM {$events} WHERE {$event_filter['sql']}", $event_filter['values'] );
+		$item_result  = is_string( $item_sql ) ? $wpdb->query( $item_sql ) : false;
+		$event_result = is_string( $event_sql ) ? $wpdb->query( $event_sql ) : false;
+		// phpcs:enable
+
+		return ( is_int( $item_result ) && $item_result > 0 ) || ( is_int( $event_result ) && $event_result > 0 );
+	}
+
+	/**
+	 * Delete events and related item rows older than a UTC cutoff.
+	 *
+	 * @param string $cutoff UTC MySQL datetime cutoff.
+	 * @param int    $limit  Maximum event rows deleted in one transaction-sized batch.
+	 */
+	public static function delete_before( string $cutoff, int $limit = 1000 ): int {
+		global $wpdb;
+
+		$cutoff = Time::utc_mysql( $cutoff );
+		$limit  = max( 1, min( 5000, $limit ) );
+		$events = Tables::conversions();
+		$items  = Tables::items();
+		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		$id_sql = $wpdb->prepare( "SELECT id FROM {$events} WHERE event_date < %s ORDER BY id ASC LIMIT %d", $cutoff, $limit );
+		$ids    = is_string( $id_sql ) ? array_values( array_filter( array_map( 'absint', (array) $wpdb->get_col( $id_sql ) ) ) ) : array();
+		if ( array() === $ids ) {
+			return 0;
+		}
+		$placeholders = implode( ', ', array_fill( 0, count( $ids ), '%d' ) );
+		$item_sql     = $wpdb->prepare( "DELETE FROM {$items} WHERE conversion_id IN ({$placeholders})", $ids );
+		$event_sql    = $wpdb->prepare( "DELETE FROM {$events} WHERE id IN ({$placeholders})", $ids );
+		if ( is_string( $item_sql ) ) {
+			$wpdb->query( $item_sql );
+		}
+		$deleted = is_string( $event_sql ) ? $wpdb->query( $event_sql ) : 0;
+		// phpcs:enable
+
+		return is_int( $deleted ) ? max( 0, $deleted ) : 0;
+	}
+
+	/**
+	 * Normalize session identifiers accepted by privacy tools.
+	 *
+	 * @param array $session_ids Candidate session identifiers.
+	 * @phpstan-param list<string> $session_ids
+	 * @return list<string>
+	 */
+	private static function session_ids( array $session_ids ): array {
+		return array_values(
+			array_unique(
+				array_filter(
+					array_map( 'strtolower', array_map( 'strval', $session_ids ) ),
+					static fn( string $session_id ): bool => 1 === preg_match( '/^[a-f0-9]{16}$/', $session_id )
+				)
+			)
+		);
+	}
+
+	/**
+	 * Build the order/session predicate for conversion events.
+	 *
+	 * @param array $order_ids Order identifiers.
+	 * @param array $session_ids Session identifiers.
+	 * @phpstan-param list<int> $order_ids
+	 * @phpstan-param list<string> $session_ids
+	 * @return array{sql: string, values: list<int|string>}
+	 */
+	private static function privacy_event_filter( array $order_ids, array $session_ids ): array {
+		$clauses = array();
+		$values  = array();
+		if ( array() !== $order_ids ) {
+			$clauses[] = 'order_id IN (' . implode( ', ', array_fill( 0, count( $order_ids ), '%d' ) ) . ')';
+			$values    = array_merge( $values, $order_ids );
+		}
+		if ( array() !== $session_ids ) {
+			$clauses[] = 'session_id IN (' . implode( ', ', array_fill( 0, count( $session_ids ), '%s' ) ) . ')';
+			$values    = array_merge( $values, $session_ids );
+		}
+		return array(
+			'sql'    => '(' . implode( ' OR ', $clauses ) . ')',
+			'values' => $values,
+		);
+	}
+
+	/**
+	 * Build the order/session predicate for conversion items.
+	 *
+	 * @param array  $order_ids Order identifiers.
+	 * @param array  $session_ids Session identifiers.
+	 * @param string $events Event table name.
+	 * @phpstan-param list<int> $order_ids
+	 * @phpstan-param list<string> $session_ids
+	 * @return array{sql: string, values: list<int|string>}
+	 */
+	private static function privacy_item_filter( array $order_ids, array $session_ids, string $events ): array {
+		$clauses = array();
+		$values  = array();
+		if ( array() !== $order_ids ) {
+			$clauses[] = 'order_id IN (' . implode( ', ', array_fill( 0, count( $order_ids ), '%d' ) ) . ')';
+			$values    = array_merge( $values, $order_ids );
+		}
+		if ( array() !== $session_ids ) {
+			$clauses[] = "conversion_id IN (SELECT id FROM {$events} WHERE session_id IN (" . implode( ', ', array_fill( 0, count( $session_ids ), '%s' ) ) . '))';
+			$values    = array_merge( $values, $session_ids );
+		}
+		return array(
+			'sql'    => '(' . implode( ' OR ', $clauses ) . ')',
+			'values' => $values,
+		);
+	}
+
+	/**
 	 * Upsert one conversion event by stable event key.
 	 *
 	 * @param array<string, mixed> $row Event fields.

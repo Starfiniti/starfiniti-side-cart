@@ -27,6 +27,11 @@ final class Reports {
 		if ( strtotime( $from ) > strtotime( $to ) ) {
 			$from = $to;
 		}
+		$max_days     = max( 1, min( 3650, absint( apply_filters( 'sfcart_analytics_max_range_days', 366 ) ) ) );
+		$minimum_from = gmdate( 'Y-m-d', strtotime( $to . ' -' . ( $max_days - 1 ) . ' days' ) );
+		if ( strtotime( $from ) < strtotime( $minimum_from ) ) {
+			$from = $minimum_from;
+		}
 
 		return array(
 			'from'       => $from,
@@ -47,9 +52,10 @@ final class Reports {
 	public static function overview( array $filters ): array {
 		global $wpdb;
 
-		$events = Tables::conversions();
-		$items  = Tables::items();
-		$where  = self::where( $filters, 'c' );
+		$events      = Tables::conversions();
+		$items       = Tables::items();
+		$event_where = self::where( $filters, 'c' );
+		$item_where  = self::where( $filters, 'c', 'i' );
 
 		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$row = $wpdb->get_row(
@@ -66,8 +72,8 @@ final class Reports {
 					COALESCE(SUM(CASE WHEN c.type = 'order' THEN c.revenue ELSE 0 END), 0) AS attributed_revenue,
 					COALESCE(SUM(CASE WHEN c.type = 'refund' THEN c.refunded ELSE 0 END), 0) AS refunded
 				FROM {$events} c
-				{$where['sql']}",
-				$where['values']
+				{$event_where['sql']}",
+				$event_where['values']
 			),
 			ARRAY_A
 		);
@@ -77,9 +83,9 @@ final class Reports {
 				"SELECT i.type, COUNT(*) AS events, COALESCE(SUM(i.total), 0) AS revenue, COALESCE(SUM(i.refunded), 0) AS refunded
 				FROM {$items} i
 				INNER JOIN {$events} c ON c.id = i.conversion_id
-				{$where['sql']}
+				{$item_where['sql']}
 				GROUP BY i.type",
-				$where['values']
+				$item_where['values']
 			),
 			ARRAY_A
 		);
@@ -88,10 +94,10 @@ final class Reports {
 			$wpdb->prepare(
 				"SELECT c.status AS action, COUNT(*) AS events, COUNT(DISTINCT c.session_id) AS sessions
 				FROM {$events} c
-				{$where['sql']} AND c.type = 'cart_interaction' AND c.status <> ''
+				{$event_where['sql']} AND c.type = 'cart_interaction' AND c.status <> ''
 				GROUP BY c.status
 				ORDER BY events DESC",
-				$where['values']
+				$event_where['values']
 			),
 			ARRAY_A
 		);
@@ -333,9 +339,14 @@ final class Reports {
 			$clauses[] = "{$event_alias}.coupon_code = %s";
 			$values[]  = (string) $filters['coupon'];
 		}
-		if ( '' !== $item_alias && (int) $filters['product_id'] > 0 ) {
-			$clauses[] = "{$item_alias}.product_id = %d";
-			$values[]  = (int) $filters['product_id'];
+		if ( (int) $filters['product_id'] > 0 ) {
+			if ( '' !== $item_alias ) {
+				$clauses[] = "{$item_alias}.product_id = %d";
+			} else {
+				$items     = Tables::items();
+				$clauses[] = "EXISTS (SELECT 1 FROM {$items} sfcart_filter_item WHERE sfcart_filter_item.conversion_id = {$event_alias}.id AND sfcart_filter_item.product_id = %d)";
+			}
+			$values[] = (int) $filters['product_id'];
 		}
 
 		return array(

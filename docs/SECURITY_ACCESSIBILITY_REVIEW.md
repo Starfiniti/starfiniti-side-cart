@@ -1,23 +1,31 @@
 # Security and accessibility review
 
-Version: 1.4.1
-Date: 2026-07-18
+Version: 1.4.4 security, privacy, and performance hardening
+Date: 2026-07-20
 
 ## Security checklist
 
 - Admin REST routes require `manage_woocommerce`.
 - REST writes require WordPress REST cookie authentication and nonce middleware.
-- AJAX cart mutations require the plugin nonce.
+- AJAX cart mutations require both the plugin nonce and a random token bound to
+  the active WooCommerce session.
 - Public analytics accepts only allowlisted events, derives cart state on the
-  server, deduplicates events in bounded time windows, and rate-limits writes
-  per WooCommerce session.
+  server, deduplicates events in bounded time windows, and rate-limits every
+  write per WooCommerce session, anonymized network peer, and site-wide window.
+- Analytics has finite configurable retention, daily cleanup, privacy-policy
+  guidance, and WordPress personal-data exporter/eraser callbacks.
+- Product relationship writes require `manage_woocommerce` and object-level
+  permission to edit the selected product.
+- Dynamic cache bypass matches exact owned REST and WooCommerce AJAX routes.
+- Release actions are pinned to full commit SHAs and checkout credentials are
+  not persisted into build workspaces.
 - Settings writes are allowlisted and normalized through `Settings::sanitize`.
 - Product, coupon, relationship, reward, add-on, analytics, and migration inputs
   are sanitized, bounded, and validated before persistence.
 - SQL writes use Starfiniti-owned tables and WooCommerce CRUD/HPOS APIs where
   order data is involved.
-- CSV export escapes formula-leading characters to reduce spreadsheet injection
-  risk.
+- CSV export escapes formula-leading characters, streams in bounded batches,
+  and enforces a maximum date range and row count.
 - Upload handling is limited to WordPress media selection by attachment ID; URLs
   are derived from WordPress rather than trusted from request payloads.
 - The plugin stores no payment credentials and implements no payment or order

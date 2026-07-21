@@ -13,6 +13,7 @@ export type ApiResult = {
 
 export class CartApi {
 	private nonce: string;
+	private token = '';
 
 	public constructor( private readonly config: SfcartConfig ) {
 		this.nonce = config.nonce;
@@ -79,6 +80,7 @@ export class CartApi {
 			event_type: eventType,
 			nonce: this.nonce,
 			outcome,
+			token: this.token,
 		} );
 
 		void fetch( this.config.endpoints.trackEvent, {
@@ -113,6 +115,7 @@ export class CartApi {
 		const body = new URLSearchParams( {
 			...payload,
 			nonce: this.nonce,
+			token: this.token,
 		} );
 		const response = await fetch( endpoint, {
 			body,
@@ -130,12 +133,14 @@ export class CartApi {
 		}
 
 		const previousNonce = this.nonce;
+		const previousToken = this.token;
 		this.nonce = envelope.data.nonce || this.nonce;
+		this.token = envelope.data.token || this.token;
 
 		if (
 			response.status === 403 &&
 			allowNonceRetry &&
-			this.nonce !== previousNonce
+			( this.nonce !== previousNonce || this.token !== previousToken )
 		) {
 			return this.request( endpoint, payload, false );
 		}

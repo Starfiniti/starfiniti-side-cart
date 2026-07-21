@@ -10,9 +10,10 @@ declare(strict_types=1);
 require_once dirname( __DIR__ ) . '/vendor/autoload.php';
 require_once dirname( __DIR__ ) . '/phpunit-stubs/woocommerce.php';
 require_once dirname( __DIR__ ) . '/phpunit-stubs/wp-error.php';
+require_once dirname( __DIR__ ) . '/phpunit-stubs/wp-rest-request.php';
 
 if ( ! defined( 'SFCART_VERSION' ) ) {
-	define( 'SFCART_VERSION', '1.4.1' );
+	define( 'SFCART_VERSION', '1.4.4' );
 }
 
 if ( ! defined( 'ARRAY_A' ) ) {
@@ -23,23 +24,41 @@ if ( ! defined( 'HOUR_IN_SECONDS' ) ) {
 	define( 'HOUR_IN_SECONDS', 3600 );
 }
 
+if ( ! defined( 'MINUTE_IN_SECONDS' ) ) {
+	define( 'MINUTE_IN_SECONDS', 60 );
+}
+
+if ( ! defined( 'DAY_IN_SECONDS' ) ) {
+	define( 'DAY_IN_SECONDS', 86400 );
+}
+
 // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited -- Isolated WordPress version test stub.
-$GLOBALS['wp_version']                = '6.6';
-$GLOBALS['sfcart_test_options']       = array();
-$GLOBALS['sfcart_test_sitewide']      = array();
-$GLOBALS['sfcart_test_actions']       = array();
-$GLOBALS['sfcart_test_hooks']         = array();
-$GLOBALS['sfcart_test_quantity_args'] = array(
+$GLOBALS['wp_version']                   = '6.6';
+$GLOBALS['sfcart_test_options']          = array();
+$GLOBALS['sfcart_test_sitewide']         = array();
+$GLOBALS['sfcart_test_actions']          = array();
+$GLOBALS['sfcart_test_hooks']            = array();
+$GLOBALS['sfcart_test_quantity_args']    = array(
 	'max_value' => 0,
 	'min_value' => 1,
 	'step'      => 1,
 );
-$GLOBALS['sfcart_test_products']      = array();
-$GLOBALS['sfcart_test_timezone']      = 'UTC';
-$GLOBALS['sfcart_test_transients']    = array();
-$GLOBALS['sfcart_test_remote']        = array();
-$GLOBALS['sfcart_test_requests']      = array();
-$GLOBALS['sfcart_test_downloads']     = array();
+$GLOBALS['sfcart_test_products']         = array();
+$GLOBALS['sfcart_test_timezone']         = 'UTC';
+$GLOBALS['sfcart_test_transients']       = array();
+$GLOBALS['sfcart_test_local_transients'] = array();
+$GLOBALS['sfcart_test_caps']             = array();
+$GLOBALS['sfcart_test_remote']           = array();
+$GLOBALS['sfcart_test_requests']         = array();
+$GLOBALS['sfcart_test_downloads']        = array();
+$GLOBALS['sfcart_test_woocommerce']      = (object) array( 'session' => null );
+
+if ( ! function_exists( 'WC' ) ) {
+	/** Return the isolated WooCommerce container. */
+	function WC(): object { // phpcs:ignore WordPress.NamingConventions.ValidFunctionName.FunctionNameInvalid -- Matches WooCommerce's public API.
+		return $GLOBALS['sfcart_test_woocommerce'];
+	}
+}
 
 if ( ! function_exists( 'is_wp_error' ) ) {
 	/**
@@ -49,6 +68,93 @@ if ( ! function_exists( 'is_wp_error' ) ) {
 	 */
 	function is_wp_error( mixed $thing ): bool {
 		return $thing instanceof WP_Error;
+	}
+}
+
+if ( ! function_exists( 'wp_unslash' ) ) {
+	/**
+	 * Return isolated scalar input unchanged.
+	 *
+	 * @param mixed $value Input value.
+	 */
+	function wp_unslash( mixed $value ): mixed {
+		return $value;
+	}
+}
+
+if ( ! function_exists( 'wp_salt' ) ) {
+	/**
+	 * Return a deterministic non-secret test salt.
+	 *
+	 * @param string $scheme Salt scheme.
+	 */
+	function wp_salt( string $scheme = 'auth' ): string {
+		return 'test-salt-' . $scheme;
+	}
+}
+
+if ( ! function_exists( 'wp_generate_uuid4' ) ) {
+	/** Return a deterministic unique UUID-shaped test value. */
+	function wp_generate_uuid4(): string {
+		static $counter = 0;
+		++$counter;
+		return sprintf( '00000000-0000-4000-8000-%012d', $counter );
+	}
+}
+
+if ( ! function_exists( 'get_transient' ) ) {
+	/**
+	 * Read an isolated site transient.
+	 *
+	 * @param string $key Transient key.
+	 */
+	function get_transient( string $key ): mixed {
+		return $GLOBALS['sfcart_test_local_transients'][ $key ]['value'] ?? false;
+	}
+}
+
+if ( ! function_exists( 'set_transient' ) ) {
+	/**
+	 * Store an isolated site transient.
+	 *
+	 * @param string $key        Transient key.
+	 * @param mixed  $value      Transient value.
+	 * @param int    $expiration Requested lifetime.
+	 */
+	function set_transient( string $key, mixed $value, int $expiration = 0 ): bool {
+		$GLOBALS['sfcart_test_local_transients'][ $key ] = array(
+			'value'      => $value,
+			'expiration' => $expiration,
+		);
+		return true;
+	}
+}
+
+if ( ! function_exists( 'current_user_can' ) ) {
+	/**
+	 * Resolve deterministic primitive and object-level capabilities.
+	 *
+	 * @param string $capability Capability name.
+	 * @param mixed  ...$args    Optional object identifiers.
+	 */
+	function current_user_can( string $capability, mixed ...$args ): bool {
+		$object_key = array() !== $args ? $capability . ':' . (string) $args[0] : '';
+		if ( '' !== $object_key && array_key_exists( $object_key, $GLOBALS['sfcart_test_caps'] ) ) {
+			return true === $GLOBALS['sfcart_test_caps'][ $object_key ];
+		}
+		return true === ( $GLOBALS['sfcart_test_caps'][ $capability ] ?? false );
+	}
+}
+
+if ( ! function_exists( 'wp_clear_scheduled_hook' ) ) {
+	/**
+	 * Record removal of an isolated scheduled hook.
+	 *
+	 * @param string $hook Scheduled hook name.
+	 */
+	function wp_clear_scheduled_hook( string $hook ): int|false {
+		$GLOBALS['sfcart_test_actions'][] = array( 'wp_clear_scheduled_hook', array( $hook ) );
+		return 1;
 	}
 }
 

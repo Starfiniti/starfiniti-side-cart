@@ -38,23 +38,17 @@ final class Frontend {
 
 		CompatibilityManager::tag_page_cache();
 
-		$asset_path    = SFCART_PLUGIN_DIR . 'build/frontend.asset.php';
-		$asset         = is_readable( $asset_path ) ? require $asset_path : array();
-		$version       = is_array( $asset ) && isset( $asset['version'] ) ? (string) $asset['version'] : SFCART_VERSION;
-		$dependencies  = is_array( $asset ) && isset( $asset['dependencies'] ) && is_array( $asset['dependencies'] )
+		$asset_path   = SFCART_PLUGIN_DIR . 'build/frontend.asset.php';
+		$asset        = is_readable( $asset_path ) ? require $asset_path : array();
+		$version      = is_array( $asset ) && isset( $asset['version'] ) ? (string) $asset['version'] : SFCART_VERSION;
+		$dependencies = is_array( $asset ) && isset( $asset['dependencies'] ) && is_array( $asset['dependencies'] )
 			? $asset['dependencies']
 			: array();
-		$style_path    = SFCART_PLUGIN_DIR . 'build/style-frontend.css';
-		$style_hash    = is_readable( $style_path ) ? hash_file( 'sha256', $style_path ) : false;
-		$style_version = is_string( $style_hash ) ? SFCART_VERSION . '.' . substr( $style_hash, 0, 12 ) : SFCART_VERSION;
 		if ( wp_script_is( 'wc-add-to-cart', 'enqueued' ) && ! in_array( 'jquery', $dependencies, true ) ) {
 			$dependencies[] = 'jquery';
 		}
 
-		// CSS is emitted separately from the JavaScript entry, so the webpack
-		// asset hash does not change for CSS-only releases. Include a content hash
-		// to invalidate browser and page caches even when package timestamps are reproducible.
-		wp_enqueue_style( 'sfcart-frontend', SFCART_PLUGIN_URL . 'build/style-frontend.css', array(), $style_version );
+		wp_enqueue_style( 'sfcart-frontend', SFCART_PLUGIN_URL . 'build/style-frontend.css', array(), SFCART_VERSION );
 		wp_enqueue_script( 'sfcart-frontend', SFCART_PLUGIN_URL . 'build/frontend.js', $dependencies, $version, true );
 
 		$settings      = Settings::get();

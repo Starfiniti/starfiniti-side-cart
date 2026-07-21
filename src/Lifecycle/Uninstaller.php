@@ -46,6 +46,8 @@ final class Uninstaller {
 	 * Delete current-site data only after explicit consent.
 	 */
 	private static function maybe_delete_current_site_data(): void {
+		wp_clear_scheduled_hook( 'sfcart_cleanup_analytics' );
+
 		if ( ! Settings::should_delete_data_on_uninstall() ) {
 			return;
 		}
@@ -55,6 +57,7 @@ final class Uninstaller {
 		delete_option( Settings::OPTION_NAME );
 		delete_option( 'sfcart_funnelkit_migration_audit' );
 		delete_option( 'sfcart_funnelkit_migration_state' );
+		delete_option( 'sfcart_funnelkit_migration_lock' );
 		Tables::drop();
 	}
 
