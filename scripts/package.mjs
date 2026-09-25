@@ -33,6 +33,7 @@ const releaseRoots = [
 	'blocks',
 	'build',
 	'docs',
+	'languages',
 	'CHANGELOG.md',
 	'composer.json',
 	'composer.lock',

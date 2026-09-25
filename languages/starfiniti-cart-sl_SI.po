@@ -1,0 +1,342 @@
+# Slovenian translation of Starfiniti Cart for WooCommerce.
+# Copyright (C) 2026 Starfiniti
+# This file is distributed under the same license as the Starfiniti Cart for WooCommerce plugin (GPL-3.0-or-later).
+# Covers every shopper-facing string; administration strings are not translated yet.
+msgid ""
+msgstr ""
+"Project-Id-Version: Starfiniti Cart for WooCommerce\n"
+"Report-Msgid-Bugs-To: https://github.com/Starfiniti/starfiniti-side-cart/issues\n"
+"Language-Team: Slovenian\n"
+"Language: sl_SI\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=4; plural=(n%100==1 ? 0 : n%100==2 ? 1 : n%100==3 || n%100==4 ? 2 : 3);\n"
+"X-Domain: starfiniti-cart\n"
+
+#: src/AddOn/SpecialAddOn.php:135
+msgid "That special add-on is no longer available."
+msgstr "Dodatek ni več na voljo."
+
+#: src/AddOn/SpecialAddOn.php:309
+msgid "That special add-on is unavailable."
+msgstr "Dodatek ni na voljo."
+
+#: src/AddOn/SpecialAddOn.php:321 src/AddOn/SpecialAddOn.php:335
+msgid "Choose an available add-on variation."
+msgstr "Izberite razpoložljivo različico dodatka."
+
+#: src/AddOn/SpecialAddOn.php:328
+msgid "Choose all add-on options before selecting it."
+msgstr "Pred izbiro dodatka izberite vse možnosti."
+
+#: src/AddOn/SpecialAddOn.php:367
+msgid "That special add-on could not be added."
+msgstr "Dodatka ni bilo mogoče dodati."
+
+#: src/Ajax/CartController.php:76
+msgid "Choose a valid cart item quantity."
+msgstr "Izberite veljavno količino."
+
+#: src/Ajax/CartController.php:82 src/Ajax/CartController.php:169
+msgid "That cart item could not be found."
+msgstr "Izdelka v košarici ni bilo mogoče najti."
+
+#: src/Ajax/CartController.php:88 src/Ajax/CartController.php:255
+msgid "That product is unavailable."
+msgstr "Izdelek ni na voljo."
+
+#: src/Ajax/CartController.php:92
+msgid "This cart item has a fixed quantity."
+msgstr "Količine tega izdelka ni mogoče spremeniti."
+
+#: src/Ajax/CartController.php:98
+msgid "Choose a whole-number cart item quantity."
+msgstr "Količina mora biti celo število."
+
+#: src/Ajax/CartController.php:110
+msgid "The cart item quantity could not be updated."
+msgstr "Količine ni bilo mogoče spremeniti."
+
+#: src/Ajax/CartController.php:122
+#, php-format
+msgid "“%s” was updated."
+msgstr "Izdelek »%s« je posodobljen."
+
+#: src/Ajax/CartController.php:145
+msgid "Special add-on selected."
+msgstr "Dodatek je izbran."
+
+#: src/Ajax/CartController.php:146
+msgid "Special add-on removed."
+msgstr "Dodatek je odstranjen."
+
+#: src/Ajax/CartController.php:173
+msgid "This reward gift cannot be removed."
+msgstr "Tega darila ni mogoče odstraniti."
+
+#: src/Ajax/CartController.php:191
+msgid "Coupons are not enabled for this store."
+msgstr "Ta trgovina ne sprejema kuponov."
+
+#: src/Ajax/CartController.php:197
+msgid "Enter a coupon code."
+msgstr "Vnesite kodo kupona."
+
+#: src/Ajax/CartController.php:202
+msgid "That coupon could not be applied."
+msgstr "Kupona ni bilo mogoče uporabiti."
+
+#: src/Ajax/CartController.php:225
+msgid "That coupon is not applied to the cart."
+msgstr "Ta kupon ni uporabljen v košarici."
+
+#: src/Ajax/CartController.php:228
+msgid "Coupon removed."
+msgstr "Kupon je odstranjen."
+
+#: src/Ajax/CartController.php:249
+msgid "That recommendation is no longer available."
+msgstr "Priporočeni izdelek ni več na voljo."
+
+#: src/Ajax/CartController.php:280
+msgid "That product could not be added to your cart."
+msgstr "Izdelka ni bilo mogoče dodati v košarico."
+
+#: src/Ajax/CartController.php:294
+#, php-format
+msgid "“%s” was added to your cart."
+msgstr "Izdelek »%s« je dodan v košarico."
+
+#: src/Ajax/CartController.php:308 src/Ajax/CartController.php:336
+msgid "Too many cart events were received. Try again later."
+msgstr "Preveč zahtevkov. Poskusite pozneje."
+
+#: src/Ajax/CartController.php:333
+msgid "That analytics event is not supported."
+msgstr "Ta dogodek ni podprt."
+
+#: src/Ajax/CartController.php:353
+msgid "The cart event could not be recorded."
+msgstr "Dogodka ni bilo mogoče zabeležiti."
+
+#: src/Ajax/CartController.php:422
+msgid "Choose an available product variation."
+msgstr "Izberite razpoložljivo različico izdelka."
+
+#: src/Ajax/CartController.php:428
+msgid "Choose options for this product before adding it."
+msgstr "Pred dodajanjem izberite možnosti izdelka."
+
+#: src/Ajax/CartController.php:457
+#, php-format
+msgid "The minimum allowed quantity is %s."
+msgstr "Najmanjša dovoljena količina je %s."
+
+#: src/Ajax/CartController.php:462
+#, php-format
+msgid "The maximum allowed quantity is %s."
+msgstr "Največja dovoljena količina je %s."
+
+#: src/Ajax/CartController.php:467
+#, php-format
+msgid "Quantity must increase in steps of %s."
+msgstr "Količino lahko spreminjate po %s."
+
+#: src/Ajax/CartController.php:474
+msgid "That quantity is not available."
+msgstr "Te količine ni na zalogi."
+
+#: src/Ajax/CartController.php:491
+#, php-format
+msgid "Only %s is currently available."
+msgstr "Trenutno je na voljo samo %s."
+
+#: src/Ajax/CartController.php:504
+msgid "The cart item could not be removed."
+msgstr "Izdelka ni bilo mogoče odstraniti."
+
+#: src/Ajax/CartController.php:515
+#, php-format
+msgid "“%s” was removed from your cart."
+msgstr "Izdelek »%s« je odstranjen iz košarice."
+
+#: src/Ajax/CartController.php:526 src/Cart/CartState.php:33
+msgid "The WooCommerce cart is unavailable."
+msgstr "Košarica trenutno ni na voljo."
+
+#: src/Ajax/CartController.php:540
+msgid "Your cart session expired. Refresh the page and try again."
+msgstr "Seja košarice je potekla. Osvežite stran in poskusite znova."
+
+#: src/Ajax/CartController.php:603
+msgid "The cart could not be refreshed."
+msgstr "Košarice ni bilo mogoče osvežiti."
+
+#: src/Ajax/CartController.php:628
+msgid "The cart could not be updated. Please try again."
+msgstr "Košarice ni bilo mogoče posodobiti. Poskusite znova."
+
+#: src/Analytics/Privacy.php:76 src/Analytics/Privacy.php:92 src/Analytics/Privacy.php:114
+msgid "Starfiniti Cart analytics"
+msgstr "Analitika Starfiniti Cart"
+
+#: src/Cart/CartState.php:76
+#, php-format
+msgid "%d item"
+msgid_plural "%d items"
+msgstr[0] "%d izdelek"
+msgstr[1] "%d izdelka"
+msgstr[2] "%d izdelki"
+msgstr[3] "%d izdelkov"
+
+#: src/Cart/CartState.php:114 src/Rewards/RewardEngine.php:575
+msgid "Free gift"
+msgstr "Darilo"
+
+#: src/Cart/CartState.php:114 src/Frontend/Markup.php:132
+msgid "Special add-on"
+msgstr "Posebna ponudba"
+
+#: src/Cart/CartState.php:214
+msgid "Calculated at checkout"
+msgstr "Izračunano na blagajni"
+
+#: src/Frontend/Frontend.php:80
+msgid "item"
+msgstr "izdelek"
+
+#: src/Frontend/Frontend.php:81
+msgid "items"
+msgstr "izdelkov"
+
+#: src/Frontend/Frontend.php:83
+#, php-format
+msgid "Decrease quantity for %s"
+msgstr "Zmanjšaj količino: %s"
+
+#: src/Frontend/Frontend.php:85
+#, php-format
+msgid "Increase quantity for %s"
+msgstr "Povečaj količino: %s"
+
+#: src/Frontend/Frontend.php:87
+#, php-format
+msgid "Quantity for %s"
+msgstr "Količina: %s"
+
+#: src/Frontend/Frontend.php:89
+#, php-format
+msgid "Remove %s from cart"
+msgstr "Odstrani iz košarice: %s"
+
+#: src/Frontend/Frontend.php:91
+#, php-format
+msgid "Remove coupon %s"
+msgstr "Odstrani kupon %s"
+
+#: src/Frontend/Frontend.php:93
+#, php-format
+msgid "You save %1$s (%2$d%%)"
+msgstr "Prihranite %1$s (%2$d %%)"
+
+#: src/Frontend/Frontend.php:95
+msgid "The cart could not be refreshed. Please try again."
+msgstr "Košarice ni bilo mogoče osvežiti. Poskusite znova."
+
+#: src/Frontend/Frontend.php:96
+msgid "Add to cart"
+msgstr "Dodaj v košarico"
+
+#: src/Frontend/Frontend.php:97
+msgid "Choose options"
+msgstr "Izberite možnosti"
+
+#: src/Frontend/Frontend.php:99
+#, php-format
+msgid "Choose %s"
+msgstr "Izberite %s"
+
+#: src/Frontend/Frontend.php:100
+msgid "Select add-on"
+msgstr "Izberi dodatek"
+
+#: src/Frontend/Frontend.php:101
+msgid "Previous recommendation"
+msgstr "Prejšnje priporočilo"
+
+#: src/Frontend/Frontend.php:102
+msgid "Next recommendation"
+msgstr "Naslednje priporočilo"
+
+#: src/Frontend/Frontend.php:103
+msgid "Your cart session expired. Refreshing the cart…"
+msgstr "Seja košarice je potekla. Osvežujem košarico …"
+
+#: src/Frontend/Markup.php:28 src/Frontend/Markup.php:72
+msgid "Open cart"
+msgstr "Odpri košarico"
+
+#: src/Frontend/Markup.php:88
+msgid "View cart"
+msgstr "Ogled košarice"
+
+#: src/Frontend/Markup.php:97
+msgid "Your cart"
+msgstr "Vaša košarica"
+
+#: src/Frontend/Markup.php:100
+msgid "Close cart"
+msgstr "Zapri košarico"
+
+#: src/Frontend/Markup.php:110
+msgid "Loading your cart…"
+msgstr "Nalagam košarico …"
+
+#: src/Frontend/Markup.php:119
+msgid "Your cart is empty"
+msgstr "Košarica je prazna"
+
+#: src/Frontend/Markup.php:120
+msgid "Add something you love and it will appear here."
+msgstr "Dodajte kaj, kar vam je všeč, in prikazalo se bo tukaj."
+
+#: src/Frontend/Markup.php:121 src/Frontend/Markup.php:177
+msgid "Continue shopping"
+msgstr "Nadaljuj z nakupovanjem"
+
+#: src/Frontend/Markup.php:124
+msgid "Cart rewards"
+msgstr "Nagrade v košarici"
+
+#: src/Frontend/Markup.php:131
+msgid "Cart items"
+msgstr "Izdelki v košarici"
+
+#: src/Frontend/Markup.php:143 src/Frontend/Markup.php:145
+msgid "Coupon code"
+msgstr "Koda kupona"
+
+#: src/Frontend/Markup.php:146
+msgid "Apply"
+msgstr "Uporabi"
+
+#: src/Frontend/Markup.php:170
+msgid "Proceed to checkout"
+msgstr "Na blagajno"
+
+#: src/Frontend/Markup.php:195
+msgid "Express checkout"
+msgstr "Hitro plačilo"
+
+#: src/Rewards/RewardEngine.php:193
+msgid "Reward: Free shipping"
+msgstr "Brezplačna poštnina"
+
+#: src/Rewards/RewardEngine.php:574
+msgid "Discount"
+msgstr "Popust"
+
+#: src/Rewards/RewardEngine.php:576
+msgid "Free shipping"
+msgstr "Brezplačna poštnina"
