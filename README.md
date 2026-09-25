@@ -143,6 +143,13 @@ subtotal or total while preserving the owned milestone engine. The engine
 stores only transient ownership and suppression data in the WooCommerce
 customer session and uses native shipping packages and order CRUD metadata.
 
+An achieved free-shipping milestone never adds a second free option. When a
+shipping package already offers WooCommerce's own available Free shipping
+(`free_shipping`) rate, the engine preselects that rate instead; its owned
+zero-cost "Reward: Free shipping" rate is added only to packages without one.
+WooCommerce applies the preselection only when it chooses a default rate, so a
+shopper's later manual choice at checkout is kept.
+
 ## Runtime requirements
 
 - PHP 8.1 or newer
