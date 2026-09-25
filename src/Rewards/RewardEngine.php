@@ -168,7 +168,11 @@ final class RewardEngine {
 	}
 
 	/**
-	 * Add the owned free shipping rate to each current WooCommerce package.
+	 * Add the owned free shipping rate to packages that lack a native one.
+	 *
+	 * When WooCommerce's own free_shipping method already offers an available
+	 * rate for the package, that rate is reused (and preferred by
+	 * chosen_shipping_method()) instead of adding a second free option.
 	 *
 	 * @param array<string, WC_Shipping_Rate> $rates Existing package rates.
 	 * @param array<string, mixed>            $package Shipping package.
@@ -177,6 +181,10 @@ final class RewardEngine {
 	public static function shipping_rates( array $rates, array $package ): array {
 		unset( $package );
 		if ( true !== self::session_get( self::SHIPPING_SESSION_KEY, false ) ) {
+			return $rates;
+		}
+
+		if ( null !== self::native_free_shipping_rate_id( $rates ) ) {
 			return $rates;
 		}
 
@@ -192,7 +200,12 @@ final class RewardEngine {
 	}
 
 	/**
-	 * Prefer the owned rate when it is present in a calculated package.
+	 * Preselect the free rate while a free-shipping milestone is achieved.
+	 *
+	 * WooCommerce applies this filter only when it (re)selects a default
+	 * rate, so a shopper's later manual choice is preserved. The owned rate is
+	 * preferred when present; otherwise WooCommerce's own available
+	 * free_shipping rate is preferred while the milestone is achieved.
 	 *
 	 * @param string                          $fallback      WooCommerce default rate ID.
 	 * @param array<string, WC_Shipping_Rate> $rates         Calculated package rates.
@@ -200,7 +213,33 @@ final class RewardEngine {
 	 */
 	public static function chosen_shipping_method( string $fallback, array $rates, string $chosen_method ): string {
 		unset( $chosen_method );
-		return isset( $rates[ self::SHIPPING_RATE_ID ] ) ? self::SHIPPING_RATE_ID : $fallback;
+		if ( isset( $rates[ self::SHIPPING_RATE_ID ] ) ) {
+			return self::SHIPPING_RATE_ID;
+		}
+
+		if ( true !== self::session_get( self::SHIPPING_SESSION_KEY, false ) ) {
+			return $fallback;
+		}
+
+		return self::native_free_shipping_rate_id( $rates ) ?? $fallback;
+	}
+
+	/**
+	 * Find WooCommerce's own available free_shipping rate in a package.
+	 *
+	 * WooCommerce adds a free_shipping rate only when the method is available
+	 * for the package (minimum amount, coupon, or other requirements met).
+	 *
+	 * @param array<mixed> $rates Calculated package rates keyed by rate ID.
+	 */
+	private static function native_free_shipping_rate_id( array $rates ): ?string {
+		foreach ( $rates as $rate_id => $rate ) {
+			if ( $rate instanceof WC_Shipping_Rate && 'free_shipping' === $rate->get_method_id() ) {
+				return (string) $rate_id;
+			}
+		}
+
+		return null;
 	}
 
 	/**

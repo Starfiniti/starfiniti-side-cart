@@ -15,6 +15,7 @@ Date: 2026-07-18
 | Mobile | Supported | Drawer uses responsive layout, overlay, focus trap, and tested mobile viewport behavior. |
 | RTL | Supported target | Build emits RTL CSS assets. |
 | WPML/Polylang/TranslatePress | Adapter support | Product ID mapping hooks are included where plugin filters/functions are available. |
+| WooCommerce Free shipping method | Supported | An achieved free-shipping reward milestone reuses and preselects an available native `free_shipping` rate instead of adding a duplicate; the owned "Reward: Free shipping" rate is added only to packages without one. |
 | Multicurrency plugins | Adapter support | Stored reward thresholds are converted once through the first detected currency provider and expose `sfcart_compatible_reward_amount`; WooCommerce cart totals are never converted again. |
 | Subscriptions/bundles/composites | Explicit adapter required | Complex product types fail closed unless an integration implements their complete drawer selection/configuration contract and opts in through `sfcart_*` hooks. |
 | Official WooCommerce Stripe | Adapter support | Only relocates official classic-cart express rendering where already registered. |

@@ -72,6 +72,39 @@ if ( ! class_exists( 'WC_Cart' ) ) {
 	}
 }
 
+if ( ! class_exists( 'WC_Shipping_Rate' ) ) {
+	class WC_Shipping_Rate {
+		private string $id;
+		private string $label;
+		private string $cost;
+		private string $method_id;
+
+		public function __construct( string $id = '', string $label = '', float|string $cost = 0, array $taxes = array(), string $method_id = '', int|string $instance_id = 0 ) {
+			unset( $taxes, $instance_id );
+			$this->id        = $id;
+			$this->label     = $label;
+			$this->cost      = (string) $cost;
+			$this->method_id = $method_id;
+		}
+
+		public function get_id(): string {
+			return $this->id;
+		}
+
+		public function get_label(): string {
+			return $this->label;
+		}
+
+		public function get_cost(): string {
+			return $this->cost;
+		}
+
+		public function get_method_id(): string {
+			return $this->method_id;
+		}
+	}
+}
+
 if ( ! function_exists( 'wc_get_quantity_input_args' ) ) {
 	function wc_get_quantity_input_args( array $arguments, WC_Product $product ): array {
 		return array_merge( $arguments, $GLOBALS['sfcart_test_quantity_args'] );
