@@ -52,6 +52,26 @@ if ( ! class_exists( 'WC_Product' ) ) {
 	}
 }
 
+if ( ! class_exists( 'WC_Cart' ) ) {
+	class WC_Cart {
+		public bool $needs_shipping = false;
+		public bool $show_shipping = false;
+		public string $shipping_total = '';
+
+		public function needs_shipping(): bool {
+			return $this->needs_shipping;
+		}
+
+		public function show_shipping(): bool {
+			return $this->show_shipping;
+		}
+
+		public function get_cart_shipping_total(): string {
+			return $this->shipping_total;
+		}
+	}
+}
+
 if ( ! function_exists( 'wc_get_quantity_input_args' ) ) {
 	function wc_get_quantity_input_args( array $arguments, WC_Product $product ): array {
 		return array_merge( $arguments, $GLOBALS['sfcart_test_quantity_args'] );

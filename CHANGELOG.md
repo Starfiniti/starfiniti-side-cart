@@ -2,6 +2,10 @@
 
 All notable changes to Starfiniti Cart for WooCommerce are documented here.
 
+## Unreleased
+
+- Matches the drawer shipping line to the cart total: estimated or free shipping that WooCommerce already includes in the total is now shown, and “Calculated at checkout” appears only when shipping is not part of the total.
+
 ## 1.4.5 - 2026-07-21
 
 - Allows merchants to save any valid accent and hover color without blocking unrelated settings.
