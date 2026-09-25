@@ -331,6 +331,17 @@ if ( ! function_exists( 'esc_html' ) ) {
 	}
 }
 
+if ( ! function_exists( 'esc_attr' ) ) {
+	/**
+	 * Minimal attribute escaping stub.
+	 *
+	 * @param string $text Text to escape.
+	 */
+	function esc_attr( string $text ): string {
+		return htmlspecialchars( $text, ENT_QUOTES, 'UTF-8' );
+	}
+}
+
 if ( ! function_exists( 'esc_html__' ) ) {
 	/**
 	 * Minimal translated escaping stub.

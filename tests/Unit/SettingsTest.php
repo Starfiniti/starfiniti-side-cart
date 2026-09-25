@@ -398,6 +398,36 @@ final class SettingsTest extends TestCase {
 		self::assertArrayNotHasKey( 'design.shortcode_badge_color', $errors );
 	}
 
+	/** The empty-cart count stays visible unless a merchant opts in. */
+	public function test_hide_empty_count_is_opt_in_and_validated(): void {
+		self::assertFalse( Settings::defaults()['design']['hide_empty_count'] );
+		self::assertFalse( Settings::sanitize( array() )['design']['hide_empty_count'] );
+		self::assertTrue( Settings::sanitize( array( 'design' => array( 'hide_empty_count' => 'yes' ) ) )['design']['hide_empty_count'] );
+		self::assertFalse( Settings::sanitize( array( 'design' => array( 'hide_empty_count' => 'no' ) ) )['design']['hide_empty_count'] );
+
+		self::assertArrayNotHasKey( 'design.hide_empty_count', Settings::validation_errors( array( 'design' => array( 'hide_empty_count' => true ) ) ) );
+		self::assertArrayHasKey( 'design.hide_empty_count', Settings::validation_errors( array( 'design' => array( 'hide_empty_count' => 'sometimes' ) ) ) );
+	}
+
+	/** Upgrading an existing document keeps the storefront count unchanged. */
+	public function test_upgrade_keeps_empty_cart_count_visible(): void {
+		$legacy = Settings::defaults();
+		unset( $legacy['design']['hide_empty_count'] );
+		$legacy['settings_version'] = 12;
+
+		$GLOBALS['sfcart_test_options'][ Settings::OPTION_NAME ]            = $legacy;
+		$GLOBALS['sfcart_test_options'][ Installer::SCHEMA_VERSION_OPTION ] = '12';
+		$GLOBALS['sfcart_test_options'][ Installer::PLUGIN_VERSION_OPTION ] = SFCART_VERSION;
+
+		Installer::install_or_upgrade();
+
+		$stored = $GLOBALS['sfcart_test_options'][ Settings::OPTION_NAME ];
+		self::assertSame( '13', $GLOBALS['sfcart_test_options'][ Installer::SCHEMA_VERSION_OPTION ] );
+		self::assertSame( 13, $stored['settings_version'] );
+		self::assertFalse( $stored['design']['hide_empty_count'] );
+		self::assertContains( array( 'sfcart_migration_completed', array( '13' ) ), $GLOBALS['sfcart_test_actions'] );
+	}
+
 	/**
 	 * Only explicit truthy settings enable destructive cleanup.
 	 */
@@ -431,6 +461,6 @@ final class SettingsTest extends TestCase {
 			static fn ( array $action ): bool => 'sfcart_migration_completed' === $action[0]
 		);
 
-		self::assertCount( 12, $migrations );
+		self::assertCount( 13, $migrations );
 	}
 }

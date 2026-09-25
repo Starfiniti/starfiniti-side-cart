@@ -188,10 +188,7 @@ final class Frontend {
 			return $title;
 		}
 
-		return $title . sprintf(
-			' <span class="sfcart-menu-count" data-sfcart-count aria-hidden="true">%d</span>',
-			Markup::cart_count()
-		);
+		return $title . self::menu_count();
 	}
 
 	/**
@@ -223,13 +220,24 @@ final class Frontend {
 		if ( ! str_contains( $item_output, 'data-sfcart-count' ) ) {
 			$item_output = preg_replace(
 				'/<\/a>/',
-				sprintf( ' <span class="sfcart-menu-count" data-sfcart-count aria-hidden="true">%d</span></a>', Markup::cart_count() ),
+				self::menu_count() . '</a>',
 				$item_output,
 				1
 			) ?? $item_output;
 		}
 
 		return $item_output;
+	}
+
+	/** Render the live cart count appended to the documented menu link. */
+	private static function menu_count(): string {
+		$count = Markup::cart_count();
+
+		return sprintf(
+			' <span %1$s aria-hidden="true">%2$d</span>',
+			Markup::count_attributes( 'sfcart-menu-count', $count ),
+			$count
+		);
 	}
 
 	/**

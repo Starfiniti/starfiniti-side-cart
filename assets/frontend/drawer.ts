@@ -609,6 +609,7 @@ export class DrawerController {
 			.forEach( ( count ) => {
 				count.textContent = String( state.item_count );
 				count.setAttribute( 'aria-label', countLabel );
+				count.classList.toggle( 'is-empty', state.item_count === 0 );
 			} );
 
 		dispatchCartEvent( SFCART_EVENTS.updated, {

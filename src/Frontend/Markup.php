@@ -35,7 +35,7 @@ final class Markup {
 		$show_count   = 'floating' === $variant || true === $design['shortcode_show_count'];
 		$show_total   = 'shortcode' === $variant && true === $design['shortcode_show_total'];
 		$count_markup = $show_count
-			? sprintf( '<span class="sfcart-toggle__count" data-sfcart-count aria-label="%1$s">%2$d</span>', esc_attr( $count_label ), $count )
+			? sprintf( '<span %1$s aria-label="%2$s">%3$d</span>', self::count_attributes( 'sfcart-toggle__count', $count, $settings ), esc_attr( $count_label ), $count )
 			: '';
 		$icon_markup  = self::cart_icon( $settings, $variant );
 		if ( 'shortcode' === $variant ) {
@@ -196,6 +196,28 @@ final class Markup {
 			<?php do_action( ExpressButtons::RENDER_ACTION ); ?>
 		</div>
 		<?php
+	}
+
+	/**
+	 * Return the class and data attributes shared by every live cart count.
+	 *
+	 * The frontend keeps the is-empty class in sync with the cart. The
+	 * data-sfcart-hide-empty attribute reflects the store setting (identical
+	 * for every visitor), and CSS hides the badge only when both are present.
+	 *
+	 * @param string               $class_name Badge CSS class.
+	 * @param int                  $count      Current cart item count.
+	 * @param array<string, mixed> $settings   Normalized settings document.
+	 */
+	public static function count_attributes( string $class_name, int $count, array $settings = array() ): string {
+		$settings   = array() !== $settings ? $settings : Settings::get();
+		$hide_empty = true === ( $settings['design']['hide_empty_count'] ?? false );
+
+		return sprintf(
+			'class="%1$s" data-sfcart-count%2$s',
+			esc_attr( 0 === $count ? $class_name . ' is-empty' : $class_name ),
+			$hide_empty ? ' data-sfcart-hide-empty' : ''
+		);
 	}
 
 	/**

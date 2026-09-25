@@ -529,6 +529,31 @@ export function TriggerSettings( {
 					/>
 				</div>
 			</section>
+
+			<section className="sfcart-trigger-settings__panel">
+				<div className="sfcart-trigger-settings__header">
+					<div>
+						<h3>{ __( 'Cart count', 'starfiniti-cart' ) }</h3>
+						<p>
+							{ __(
+								'Applies to the floating cart, the header / shortcode cart and block, and menu links.',
+								'starfiniti-cart'
+							) }
+						</p>
+					</div>
+					<ToggleControl
+						__nextHasNoMarginBottom
+						label={ __(
+							'Hide count when the cart is empty',
+							'starfiniti-cart'
+						) }
+						checked={ design.hide_empty_count }
+						onChange={ ( value ) =>
+							onChange( { hide_empty_count: value } )
+						}
+					/>
+				</div>
+			</section>
 		</div>
 	);
 }
