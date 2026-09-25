@@ -1,4 +1,8 @@
-import { clampQuantity, formatTemplate } from '../../assets/frontend/utils';
+import {
+	clampQuantity,
+	formatTemplate,
+	itemCountLabel,
+} from '../../assets/frontend/utils';
 
 describe( 'side-cart frontend utilities', () => {
 	it( 'clamps quantities to product limits', () => {
@@ -14,5 +18,16 @@ describe( 'side-cart frontend utilities', () => {
 		expect( formatTemplate( 'Remove %s', [ 'Product' ] ) ).toBe(
 			'Remove Product'
 		);
+	} );
+
+	it( 'prefers the server-pluralized item count label', () => {
+		const labels = { item: 'item', items: 'items' };
+
+		expect( itemCountLabel( 2, '2 izdelka', labels ) ).toBe( '2 izdelka' );
+		expect( itemCountLabel( 5, '5 izdelkov', labels ) ).toBe(
+			'5 izdelkov'
+		);
+		expect( itemCountLabel( 1, undefined, labels ) ).toBe( '1 item' );
+		expect( itemCountLabel( 3, '', labels ) ).toBe( '3 items' );
 	} );
 } );

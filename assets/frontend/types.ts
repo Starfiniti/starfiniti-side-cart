@@ -129,6 +129,7 @@ export type SpecialAddonState = {
 export type CartState = {
 	cart_hash: string;
 	item_count: number;
+	item_count_label?: string;
 	is_empty: boolean;
 	items: CartItem[];
 	coupons: AppliedCoupon[];

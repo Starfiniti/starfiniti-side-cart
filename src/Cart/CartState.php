@@ -35,30 +35,45 @@ final class CartState {
 
 		SpecialAddOn::reconcile( $cart );
 		$cart->calculate_totals();
+		$item_count = $cart->get_cart_contents_count();
 
 		return array(
-			'cart_hash'       => $cart->get_cart_hash(),
-			'item_count'      => $cart->get_cart_contents_count(),
-			'is_empty'        => $cart->is_empty(),
-			'items'           => self::items( $cart ),
-			'coupons'         => self::coupons( $cart ),
-			'coupons_enabled' => wc_coupons_enabled(),
-			'subtotal'        => self::plain_text( $cart->get_cart_subtotal() ),
-			'total'           => self::plain_text( $cart->get_total() ),
-			'shipping'        => self::shipping_text( $cart ),
-			'tax'             => self::tax_text( $cart ),
-			'notices'         => $notices,
-			'recommendations' => RecommendationEngine::snapshot( $cart ),
-			'rewards'         => RewardEngine::snapshot( $cart ),
-			'special_addon'   => SpecialAddOn::snapshot( $cart ),
-			'nonce'           => wp_create_nonce( 'sfcart_cart' ),
-			'token'           => SessionToken::current(),
-			'urls'            => array(
+			'cart_hash'        => $cart->get_cart_hash(),
+			'item_count'       => $item_count,
+			'item_count_label' => self::item_count_label( (int) $item_count ),
+			'is_empty'         => $cart->is_empty(),
+			'items'            => self::items( $cart ),
+			'coupons'          => self::coupons( $cart ),
+			'coupons_enabled'  => wc_coupons_enabled(),
+			'subtotal'         => self::plain_text( $cart->get_cart_subtotal() ),
+			'total'            => self::plain_text( $cart->get_total() ),
+			'shipping'         => self::shipping_text( $cart ),
+			'tax'              => self::tax_text( $cart ),
+			'notices'          => $notices,
+			'recommendations'  => RecommendationEngine::snapshot( $cart ),
+			'rewards'          => RewardEngine::snapshot( $cart ),
+			'special_addon'    => SpecialAddOn::snapshot( $cart ),
+			'nonce'            => wp_create_nonce( 'sfcart_cart' ),
+			'token'            => SessionToken::current(),
+			'urls'             => array(
 				'cart'     => wc_get_cart_url(),
 				'checkout' => wc_get_checkout_url(),
 				'shop'     => wc_get_page_permalink( 'shop' ),
 			),
 		);
+	}
+
+	/**
+	 * Return a ready-to-display, correctly pluralized item count.
+	 *
+	 * Languages such as Slovenian have more than two plural forms, so the
+	 * frontend must not choose between singular and plural words itself.
+	 *
+	 * @param int $count Number of items in the cart.
+	 */
+	public static function item_count_label( int $count ): string {
+		/* translators: %d: number of items in the cart. */
+		return sprintf( _n( '%d item', '%d items', $count, 'starfiniti-cart' ), $count );
 	}
 
 	/**

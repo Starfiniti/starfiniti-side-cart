@@ -12,7 +12,12 @@ import type {
 	SfcartConfig,
 	SpecialAddonProduct,
 } from './types';
-import { clampQuantity, createElement, formatTemplate } from './utils';
+import {
+	clampQuantity,
+	createElement,
+	formatTemplate,
+	itemCountLabel,
+} from './utils';
 import { recommendationDisplayLimit } from '../recommendations';
 
 const FOCUSABLE_SELECTOR = [
@@ -593,22 +598,17 @@ export class DrawerController {
 		continueShopping.href = state.urls.shop;
 		continueShopping.hidden = ! this.config.behavior.showContinueShopping;
 
-		const itemLabel =
-			state.item_count === 1
-				? this.config.labels.item
-				: this.config.labels.items;
-		this.setText(
-			'[data-sfcart-header-count]',
-			`${ state.item_count } ${ itemLabel }`
+		const countLabel = itemCountLabel(
+			state.item_count,
+			state.item_count_label,
+			this.config.labels
 		);
+		this.setText( '[data-sfcart-header-count]', countLabel );
 		document
 			.querySelectorAll< HTMLElement >( '[data-sfcart-count]' )
 			.forEach( ( count ) => {
 				count.textContent = String( state.item_count );
-				count.setAttribute(
-					'aria-label',
-					`${ state.item_count } ${ itemLabel }`
-				);
+				count.setAttribute( 'aria-label', countLabel );
 			} );
 
 		dispatchCartEvent( SFCART_EVENTS.updated, {

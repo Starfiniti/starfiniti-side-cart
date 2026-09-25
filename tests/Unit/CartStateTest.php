@@ -82,6 +82,50 @@ final class CartStateTest extends TestCase {
 		self::assertSame( 'Calculated at checkout', CartState::shipping_text( $cart ) );
 	}
 
+	/** The item count label is pluralized by WordPress, not by the frontend. */
+	public function test_item_count_label_uses_the_plural_translation(): void {
+		$GLOBALS['sfcart_test_hooks'] = array();
+
+		self::assertSame( '1 item', CartState::item_count_label( 1 ) );
+		self::assertSame( '2 items', CartState::item_count_label( 2 ) );
+		self::assertSame( '0 items', CartState::item_count_label( 0 ) );
+	}
+
+	/** Languages with more than two plural forms receive every form. */
+	public function test_item_count_label_supports_slovenian_plural_forms(): void {
+		$GLOBALS['sfcart_test_hooks'] = array();
+		add_filter(
+			'ngettext',
+			static function ( string $translation, string $single, string $plural, int $number, string $domain ): string {
+				unset( $plural );
+				if ( '%d item' !== $single || 'starfiniti-cart' !== $domain ) {
+					return $translation;
+				}
+
+				// Slovenian: nplurals=4; plural=(n%100==1 ? 0 : n%100==2 ? 1 : n%100==3 || n%100==4 ? 2 : 3).
+				$forms = array( '%d izdelek', '%d izdelka', '%d izdelki', '%d izdelkov' );
+				$index = match ( $number % 100 ) {
+					1 => 0,
+					2 => 1,
+					3, 4 => 2,
+					default => 3,
+				};
+
+				return $forms[ $index ];
+			},
+			10,
+			5
+		);
+
+		self::assertSame( '1 izdelek', CartState::item_count_label( 1 ) );
+		self::assertSame( '2 izdelka', CartState::item_count_label( 2 ) );
+		self::assertSame( '4 izdelki', CartState::item_count_label( 4 ) );
+		self::assertSame( '5 izdelkov', CartState::item_count_label( 5 ) );
+		self::assertSame( '101 izdelek', CartState::item_count_label( 101 ) );
+
+		$GLOBALS['sfcart_test_hooks'] = array();
+	}
+
 	/**
 	 * Build an isolated cart double.
 	 *
