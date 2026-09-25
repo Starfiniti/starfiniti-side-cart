@@ -150,15 +150,23 @@ export type CartState = {
 	};
 };
 
+export type AutoOpenCookie = {
+	name: string;
+	path: string;
+	domain: string;
+};
+
 export type SfcartConfig = {
 	behavior: {
 		autoOpen: boolean;
+		autoOpenAfterReload?: boolean;
 		coupons: boolean;
 		showShipping: boolean;
 		showTax: boolean;
 		showCartLink: boolean;
 		showContinueShopping: boolean;
 	};
+	autoOpenCookie?: AutoOpenCookie;
 	endpoints: {
 		state: string;
 		updateItem: string;

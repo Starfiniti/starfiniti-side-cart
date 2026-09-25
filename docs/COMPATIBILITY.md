@@ -36,6 +36,10 @@ Date: 2026-07-18
 - Pages that render the drawer receive the dedicated LiteSpeed cache tag
   `sfcart`. After changing Starfiniti Cart settings, the plugin purges only
   that tag so unrelated cached pages remain untouched.
+- Automatic opening after a classic (page reload) add to cart is carried by a
+  short-lived `sfcart_auto_open` cookie that the drawer script reads and
+  deletes. It is never written into page HTML, so cached pages stay identical
+  for every visitor.
 
 References: [LiteSpeed Cache settings](https://docs.litespeedtech.com/lscache/lscwp/cache/)
 and [LiteSpeed Cache API](https://docs.litespeedtech.com/lscache/lscwp/api/).

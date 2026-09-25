@@ -615,6 +615,27 @@ if ( ! function_exists( 'is_cart' ) ) {
 	}
 }
 
+if ( ! function_exists( 'is_admin' ) ) {
+	/** Report the isolated administration request context. */
+	function is_admin(): bool {
+		return true === ( $GLOBALS['sfcart_test_is_admin'] ?? false );
+	}
+}
+
+if ( ! function_exists( 'wp_doing_ajax' ) ) {
+	/** Report the isolated AJAX request context. */
+	function wp_doing_ajax(): bool {
+		return true === ( $GLOBALS['sfcart_test_doing_ajax'] ?? false );
+	}
+}
+
+if ( ! function_exists( 'wp_is_serving_rest_request' ) ) {
+	/** Report the isolated REST request context. */
+	function wp_is_serving_rest_request(): bool {
+		return true === ( $GLOBALS['sfcart_test_rest_request'] ?? false );
+	}
+}
+
 if ( ! function_exists( 'has_block' ) ) {
 	/**
 	 * Report whether an isolated test block is present.
