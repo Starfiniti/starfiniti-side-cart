@@ -175,22 +175,44 @@ final class CartState {
 	}
 
 	/**
-	 * Return the current shipping summary.
+	 * Return the shipping summary that matches the calculated cart total.
 	 *
-	 * @param WC_Cart $cart Active WooCommerce cart.
+	 * WooCommerce adds shipping to the cart total only when
+	 * WC_Cart::show_shipping() allows it (the same rule its cart-totals
+	 * template uses), including estimates for the default customer location.
+	 * The drawer therefore shows the calculated amount, including free
+	 * shipping, in exactly that case and otherwise defers to checkout.
+	 *
+	 * @param WC_Cart $cart Active WooCommerce cart after calculate_totals().
+	 *
+	 * @internal Public for isolated regression tests.
 	 */
-	private static function shipping_text( WC_Cart $cart ): string {
+	public static function shipping_text( WC_Cart $cart ): string {
 		if ( ! $cart->needs_shipping() ) {
 			return '';
 		}
 
-		$customer = WC()->customer;
-
-		if ( null !== $customer && $customer->has_calculated_shipping() ) {
+		if ( $cart->show_shipping() && self::has_shipping_rates() ) {
 			return self::plain_text( $cart->get_cart_shipping_total() );
 		}
 
 		return __( 'Calculated at checkout', 'starfiniti-cart' );
+	}
+
+	/**
+	 * Report whether the last shipping calculation offered any rate.
+	 *
+	 * Without a rate WooCommerce adds no shipping to the total, and its
+	 * formatted shipping total would misleadingly read as free.
+	 */
+	private static function has_shipping_rates(): bool {
+		foreach ( WC()->shipping()->get_packages() as $package ) {
+			if ( is_array( $package ) && ! empty( $package['rates'] ) ) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	/**
