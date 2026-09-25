@@ -1,4 +1,4 @@
-import { __ } from '@wordpress/i18n';
+import { __, _n, sprintf } from '@wordpress/i18n';
 import { useState } from '@wordpress/element';
 import type { CSSProperties } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
@@ -283,7 +283,16 @@ export function Preview( {
 								) }
 							</h3>
 							<small className="sfcart-preview-count">
-								{ count } { __( 'items', 'starfiniti-cart' ) }
+								{ sprintf(
+									/* translators: %d: number of items in the cart. */
+									_n(
+										'%d item',
+										'%d items',
+										count,
+										'starfiniti-cart'
+									),
+									count
+								) }
 							</small>
 						</div>
 						<button

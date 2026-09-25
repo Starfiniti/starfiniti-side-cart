@@ -306,6 +306,20 @@ if ( ! function_exists( '__' ) ) {
 	}
 }
 
+if ( ! function_exists( '_n' ) ) {
+	/**
+	 * Minimal WordPress plural translation stub with the core ngettext filter.
+	 *
+	 * @param string $single Singular source text.
+	 * @param string $plural Plural source text.
+	 * @param int    $number Number deciding the plural form.
+	 * @param string $domain Text domain.
+	 */
+	function _n( string $single, string $plural, int $number, string $domain = 'default' ): string {
+		return (string) apply_filters( 'ngettext', 1 === $number ? $single : $plural, $single, $plural, $number, $domain );
+	}
+}
+
 if ( ! function_exists( 'esc_html' ) ) {
 	/**
 	 * Minimal escaping stub.

@@ -24,6 +24,28 @@ export function formatTemplate(
 	return formatted.replaceAll( '%%', '%' );
 }
 
+/**
+ * Return the server-pluralized item count, falling back to the legacy
+ * singular/plural labels for state payloads that predate it.
+ *
+ * @param count        Number of items in the cart.
+ * @param serverLabel  Ready-to-display label from the cart state.
+ * @param labels       Legacy singular and plural words.
+ * @param labels.item  Legacy singular word.
+ * @param labels.items Legacy plural word.
+ */
+export function itemCountLabel(
+	count: number,
+	serverLabel: string | undefined,
+	labels: { item: string; items: string }
+): string {
+	if ( serverLabel ) {
+		return serverLabel;
+	}
+
+	return `${ count } ${ count === 1 ? labels.item : labels.items }`;
+}
+
 export function createElement< K extends keyof HTMLElementTagNameMap >(
 	tagName: K,
 	className = '',

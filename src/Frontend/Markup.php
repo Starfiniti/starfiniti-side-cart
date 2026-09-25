@@ -7,6 +7,7 @@
 
 namespace Starfiniti\Cart\Frontend;
 
+use Starfiniti\Cart\Cart\CartState;
 use Starfiniti\Cart\Gateway\ExpressButtons;
 use Starfiniti\Cart\Settings;
 
@@ -29,8 +30,8 @@ final class Markup {
 		$variant  = str_contains( $class_name, 'sfcart-floating-toggle' ) ? 'floating' : 'shortcode';
 		$style    = self::trigger_style( $variant, $settings );
 		$design   = $settings['design'];
-		/* translators: %d: number of items in the cart. */
-		$count_label  = sprintf( _n( '%d item', '%d items', $count, 'starfiniti-cart' ), $count );
+
+		$count_label  = CartState::item_count_label( $count );
 		$show_count   = 'floating' === $variant || true === $design['shortcode_show_count'];
 		$show_total   = 'shortcode' === $variant && true === $design['shortcode_show_total'];
 		$count_markup = $show_count
