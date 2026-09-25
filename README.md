@@ -113,6 +113,20 @@ UI, order creation, payment confirmation, or gateway JavaScript. The official
 gateway plugins remain independently installed and authoritative for all such
 behavior.
 
+## Translations
+
+The plugin loads the `starfiniti-cart` text domain from `languages/`. A
+Slovenian (`sl_SI`) translation of every shopper-facing string (drawer, cart
+notices, rewards, recommendations, and the special add-on) ships with the
+plugin and release package. Administration screens are not translated yet;
+the React settings application would additionally need JSON script
+translations.
+
+Store-specific wording can still be changed in **Cart → Language overrides**.
+Stored texts such as recommendation headings, reward messages, and the add-on
+heading are settings, so they are edited in the administration screen rather
+than translated through `languages/`.
+
 ## Integration interfaces
 
 The frontend dispatches these document events:
