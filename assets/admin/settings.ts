@@ -154,6 +154,10 @@ const fieldLabels: Record< string, string > = {
 		'Header count text color',
 		'starfiniti-cart'
 	),
+	'design.hide_empty_count': __(
+		'Hide count when the cart is empty',
+		'starfiniti-cart'
+	),
 };
 
 export function validationSection( path: string ): ValidationSection {

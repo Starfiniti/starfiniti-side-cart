@@ -19,7 +19,7 @@ final class Installer {
 	/**
 	 * Current plugin-owned schema version.
 	 */
-	public const CURRENT_SCHEMA_VERSION = '12';
+	public const CURRENT_SCHEMA_VERSION = '13';
 
 	/**
 	 * Stored code version option.
@@ -99,6 +99,10 @@ final class Installer {
 
 		if ( version_compare( $installed_schema, '12', '<' ) ) {
 			self::migrate_to_12();
+		}
+
+		if ( version_compare( $installed_schema, '13', '<' ) ) {
+			self::migrate_to_13();
 		}
 
 		Settings::ensure_defaults();
@@ -299,6 +303,25 @@ final class Installer {
 
 		/** This action is documented in migrate_to_1(). */
 		do_action( 'sfcart_migration_completed', '12' );
+	}
+
+	/**
+	 * Add the empty-cart count visibility design setting.
+	 *
+	 * Existing documents receive the default (count stays visible), so the
+	 * storefront looks unchanged until a merchant opts in.
+	 */
+	private static function migrate_to_13(): void {
+		Settings::ensure_defaults();
+		update_option( self::SCHEMA_VERSION_OPTION, '13', false );
+
+		Logger::info(
+			'Starfiniti Cart migration completed.',
+			array( 'schema_version' => '13' )
+		);
+
+		/** This action is documented in migrate_to_1(). */
+		do_action( 'sfcart_migration_completed', '13' );
 	}
 
 	/**

@@ -34,7 +34,7 @@ final class Settings {
 	/**
 	 * Current settings document version.
 	 */
-	public const SCHEMA_VERSION = 12;
+	public const SCHEMA_VERSION = 13;
 
 	/**
 	 * Delete-data setting key. Kept at the document root for uninstall safety.
@@ -94,6 +94,7 @@ final class Settings {
 				'shortcode_badge_background' => '#b91c1c',
 				'shortcode_badge_color'      => '#ffffff',
 				'shortcode_border_radius'    => 8,
+				'hide_empty_count'           => false,
 				'accent'                     => '#1d4ed8',
 				'accent_hover'               => '#1e40af',
 				'background'                 => '#ffffff',
@@ -348,6 +349,10 @@ final class Settings {
 			$errors['design.shortcode_border_width'] = __( 'Header cart border width must be between 0 and 4 pixels.', 'starfiniti-cart' );
 		}
 
+		if ( isset( $design['hide_empty_count'] ) && ! is_bool( $design['hide_empty_count'] ) ) {
+			$errors['design.hide_empty_count'] = __( 'Choose whether the cart count is hidden when the cart is empty.', 'starfiniti-cart' );
+		}
+
 		foreach ( array( 'floating', 'shortcode' ) as $icon_context ) {
 			$icon_key = $icon_context . '_icon';
 			$id_key   = $icon_context . '_icon_id';
@@ -500,6 +505,7 @@ final class Settings {
 			'shortcode_badge_background' => self::color( $design['shortcode_badge_background'] ?? null, $defaults['design']['shortcode_badge_background'] ),
 			'shortcode_badge_color'      => self::color( $design['shortcode_badge_color'] ?? null, $defaults['design']['shortcode_badge_color'] ),
 			'shortcode_border_radius'    => self::bounded_integer( $design['shortcode_border_radius'] ?? $defaults['design']['shortcode_border_radius'], 0, 32, 8 ),
+			'hide_empty_count'           => self::boolean( $design['hide_empty_count'] ?? $defaults['design']['hide_empty_count'] ),
 			'accent'                     => self::color( $design['accent'] ?? null, $defaults['design']['accent'] ),
 			'accent_hover'               => self::color( $design['accent_hover'] ?? null, $defaults['design']['accent_hover'] ),
 			'background'                 => self::color( $design['background'] ?? null, $defaults['design']['background'] ),

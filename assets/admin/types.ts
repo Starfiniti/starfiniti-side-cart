@@ -44,6 +44,7 @@ export type DesignSettings = {
 	shortcode_badge_background: string;
 	shortcode_badge_color: string;
 	shortcode_border_radius: number;
+	hide_empty_count: boolean;
 	accent: string;
 	accent_hover: string;
 	background: string;

@@ -1170,6 +1170,11 @@ input:focus-visible + .sfcart-special-addon__switch {
 	background: var(--sfcart-accent);
 }
 
+/* Optional "Hide count when the cart is empty" design setting. */
+[data-sfcart-count][data-sfcart-hide-empty].is-empty {
+	display: none !important;
+}
+
 .sfcart-shortcode-toggle {
 	font-size: var(--sfcart-trigger-text-size, 14px);
 

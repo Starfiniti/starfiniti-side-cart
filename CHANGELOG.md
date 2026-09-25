@@ -8,6 +8,7 @@ All notable changes to Starfiniti Cart for WooCommerce are documented here.
 - Opens the drawer once on the next page load after a classic (non-AJAX) add to cart when “Open automatically after add to cart” is enabled. A short-lived cookie that the drawer deletes on first read carries the signal, so full-page caches never serve it to other visitors; cart and checkout pages never open automatically.
 - Adds a ready, correctly pluralized `item_count_label` to the cart state and uses it for the drawer subtitle and cart-count labels, so languages with more than two plural forms (such as Slovenian) no longer show the wrong form. Older state payloads fall back to the previous singular/plural words.
 - Stops free-shipping reward milestones from adding a duplicate “Reward: Free shipping” rate when a shipping package already has WooCommerce’s own available `free_shipping` rate; that native rate is preselected instead while the milestone is achieved. Packages without a native free rate keep the reward rate.
+- Adds a “Hide count when the cart is empty” Design setting for the floating, header/shortcode, block, and menu cart counts, including the live preview. It is off by default, and the settings schema advances to version 13 so existing stores keep their current badge on upgrade.
 
 ## 1.4.5 - 2026-07-21
 

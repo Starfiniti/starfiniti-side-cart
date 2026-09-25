@@ -47,7 +47,8 @@ on every configuration screen, including the cart-focused Analytics section.
 
 - Cart behavior, drawer position and width, visible totals and links.
 - Drawer colors, radius, overlay opacity, four Lucide cart icons, a custom icon,
-  and separate styling for the floating and shortcode cart triggers.
+  and separate styling for the floating and shortcode cart triggers, plus an
+  option to hide every cart count while the cart is empty.
 - Store-specific language overrides that fall back to normal WordPress
   translations when blank. View cart and the calculation note are hidden when
   their fields are blank.

@@ -153,6 +153,7 @@ export function Preview( {
 }: Props ) {
 	const [ items, setItems ] = useState( initialItems );
 	const count = items.reduce( ( total, item ) => total + item.quantity, 0 );
+	const showCount = count > 0 || ! settings.design.hide_empty_count;
 	const subtotal = items.reduce(
 		( total, item ) => total + item.price * item.quantity,
 		0
@@ -268,7 +269,7 @@ export function Preview( {
 								__( 'Open cart', 'starfiniti-cart' )
 							) }
 						</span>
-						<b>{ count }</b>
+						{ showCount && <b>{ count }</b> }
 					</div>
 				) }
 
