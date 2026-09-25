@@ -1,4 +1,5 @@
 import { CartApi, type ApiResult } from './api';
+import { consumeAutoOpenFlag } from './auto-open';
 import { dispatchCartEvent, SFCART_EVENTS } from './events';
 import { OperationQueue } from './operation-queue';
 import type {
@@ -79,6 +80,14 @@ export class DrawerController {
 			window
 				.jQuery( document.body )
 				.on( 'added_to_cart', this.handleExternalAdd );
+		}
+
+		if (
+			consumeAutoOpenFlag( document, this.config.autoOpenCookie ) &&
+			this.config.behavior.autoOpenAfterReload
+		) {
+			this.lastAutoOpen = Date.now();
+			this.open();
 		}
 	}
 

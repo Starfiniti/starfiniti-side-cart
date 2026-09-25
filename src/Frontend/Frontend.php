@@ -20,6 +20,7 @@ final class Frontend {
 	 * Register frontend hooks.
 	 */
 	public static function register(): void {
+		AutoOpen::register();
 		add_action( 'wp_enqueue_scripts', array( self::class, 'enqueue_assets' ) );
 		add_action( 'wp_footer', array( self::class, 'render' ), 20 );
 		add_shortcode( 'starfiniti_cart', array( self::class, 'shortcode' ) );
@@ -53,15 +54,17 @@ final class Frontend {
 
 		$settings      = Settings::get();
 		$configuration = array(
-			'behavior'  => array(
+			'behavior'       => array(
 				'autoOpen'             => (bool) $settings['cart']['auto_open'],
+				'autoOpenAfterReload'  => (bool) $settings['cart']['auto_open'] && ! self::is_cart_page(),
 				'coupons'              => (bool) $settings['cart']['coupons'],
 				'showShipping'         => (bool) $settings['cart']['show_shipping'],
 				'showTax'              => (bool) $settings['cart']['show_tax'],
 				'showCartLink'         => (bool) $settings['cart']['show_cart_link'],
 				'showContinueShopping' => (bool) $settings['cart']['show_continue_shopping'],
 			),
-			'endpoints' => array(
+			'autoOpenCookie' => AutoOpen::cookie_config(),
+			'endpoints'      => array(
 				'state'                => WC_AJAX::get_endpoint( 'sfcart_state' ),
 				'updateItem'           => WC_AJAX::get_endpoint( 'sfcart_update_item' ),
 				'removeItem'           => WC_AJAX::get_endpoint( 'sfcart_remove_item' ),
@@ -72,8 +75,8 @@ final class Frontend {
 				'trackEvent'           => WC_AJAX::get_endpoint( 'sfcart_track_event' ),
 				'setSpecialAddon'      => WC_AJAX::get_endpoint( 'sfcart_set_special_addon' ),
 			),
-			'nonce'     => wp_create_nonce( 'sfcart_cart' ),
-			'labels'    => array(
+			'nonce'          => wp_create_nonce( 'sfcart_cart' ),
+			'labels'         => array(
 				'item'                   => __( 'item', 'starfiniti-cart' ),
 				'items'                  => __( 'items', 'starfiniti-cart' ),
 				/* translators: %s: product name. */
@@ -238,6 +241,11 @@ final class Frontend {
 		}
 
 		return ! function_exists( 'is_checkout' ) || ! is_checkout();
+	}
+
+	/** Report whether this is the classic or block WooCommerce cart page. */
+	private static function is_cart_page(): bool {
+		return function_exists( 'is_cart' ) && is_cart();
 	}
 
 	/**

@@ -79,6 +79,10 @@ on every configuration screen, including the cart-focused Analytics section.
   `#starfiniti-cart`.
 - Classic `added_to_cart` and native `wc-blocks_added_to_cart` support without
   depending on `wc-cart-fragments`.
+- Optional one-shot opening after classic single-product adds that reload the
+  page. A 60-second `sfcart_auto_open` cookie containing only `1` marks the
+  add; the drawer reads and deletes it on the next page load, so cached page
+  HTML never carries visitor state. Cart and checkout pages never open it.
 - Native WooCommerce upsell and cross-sell resolution, optional defaults,
   exclusions, four deterministic ordering modes, three layouts, and four
   independently configurable positions (twelve presentation combinations).
