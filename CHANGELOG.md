@@ -2,7 +2,7 @@
 
 All notable changes to Starfiniti Cart for WooCommerce are documented here.
 
-## Unreleased
+## 1.5.0 - 2026-09-28
 
 - Matches the drawer shipping line to the cart total: estimated or free shipping that WooCommerce already includes in the total is now shown, and “Calculated at checkout” appears only when shipping is not part of the total.
 - Opens the drawer once on the next page load after a classic (non-AJAX) add to cart when “Open automatically after add to cart” is enabled. A short-lived cookie that the drawer deletes on first read carries the signal, so full-page caches never serve it to other visitors; cart and checkout pages never open automatically.
