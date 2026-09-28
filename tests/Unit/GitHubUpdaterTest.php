@@ -46,7 +46,7 @@ final class GitHubUpdaterTest extends TestCase {
 		$second = $this->discover();
 
 		self::assertIsArray( $first );
-		self::assertSame( '1.4.6', $first['version'] );
+		self::assertSame( '1.5.1', $first['version'] );
 		self::assertSame( $this->package_url(), $first['package'] );
 		self::assertSame( GitHubUpdater::UPDATE_URI, $first['id'] );
 		self::assertSame( $first, $second );
@@ -97,7 +97,7 @@ final class GitHubUpdaterTest extends TestCase {
 		$result = GitHubUpdater::plugin_information( false, 'plugin_information', (object) array( 'slug' => 'starfiniti-cart' ) );
 
 		self::assertIsObject( $result );
-		self::assertSame( '1.4.6', $result->version );
+		self::assertSame( '1.5.1', $result->version );
 		self::assertSame( $this->package_url(), $result->download_link );
 		self::assertStringContainsString( 'Security fixes', $result->sections['changelog'] );
 	}
@@ -145,7 +145,7 @@ final class GitHubUpdaterTest extends TestCase {
 		$checksum_url = $this->checksum_url();
 
 		$this->configure_release( $release );
-		$GLOBALS['sfcart_test_remote'][ $checksum_url ] = $this->http_response( $checksum . '  starfiniti-cart-1.4.6.zip' );
+		$GLOBALS['sfcart_test_remote'][ $checksum_url ] = $this->http_response( $checksum . '  starfiniti-cart-1.5.1.zip' );
 
 		$GLOBALS['sfcart_test_downloads'][ $this->package_url() ] = $file;
 
@@ -211,20 +211,20 @@ final class GitHubUpdaterTest extends TestCase {
 	private function release( string $checksum = '' ): array {
 		$digest = '' !== $checksum ? 'sha256:' . $checksum : '';
 		return array(
-			'tag_name'   => 'v1.4.6',
+			'tag_name'   => 'v1.5.1',
 			'draft'      => false,
 			'prerelease' => false,
-			'html_url'   => 'https://github.com/Starfiniti/starfiniti-side-cart/releases/tag/v1.4.6',
+			'html_url'   => 'https://github.com/Starfiniti/starfiniti-side-cart/releases/tag/v1.5.1',
 			'body'       => 'Security fixes and update support.',
 			'assets'     => array(
 				array(
-					'name'                 => 'starfiniti-cart-1.4.6.zip',
+					'name'                 => 'starfiniti-cart-1.5.1.zip',
 					'browser_download_url' => $this->package_url(),
 					'size'                 => 2048,
 					'digest'               => $digest,
 				),
 				array(
-					'name'                 => 'starfiniti-cart-1.4.6.zip.sha256',
+					'name'                 => 'starfiniti-cart-1.5.1.zip.sha256',
 					'browser_download_url' => $this->checksum_url(),
 					'size'                 => 96,
 				),
@@ -261,7 +261,7 @@ final class GitHubUpdaterTest extends TestCase {
 
 	/** Return the exact owned release package URL. */
 	private function package_url(): string {
-		return 'https://github.com/Starfiniti/starfiniti-side-cart/releases/download/v1.4.6/starfiniti-cart-1.4.6.zip';
+		return 'https://github.com/Starfiniti/starfiniti-side-cart/releases/download/v1.5.1/starfiniti-cart-1.5.1.zip';
 	}
 
 	/** Return the exact owned release checksum URL. */
